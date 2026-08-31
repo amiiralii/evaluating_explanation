@@ -25,3 +25,12 @@ What's a good explanation? in this repository we're looking for ways to evaluate
 + **Global** / C6: threshhold is 7 (based on that psychology work). does the output of explanation contain more than 7?
 + **Local** / C8: can the output of explanation suggest a level of confidence in the output's quality or explanation?
 + **Local** / C9: How does explanation output interact with the "what-it" questions? (no idea / level of change / direction of change)
+
+-------
+
+## Open Questioons for evaluation: (looking for experiment design)
+1. why solution (A) and not solution (B) ?
+2. How does this solution came up? model's internal process on how it came up with that config.
+3. Search based question: How does explanation change when changing budget? what does explanation say about the labeling budget?
+4. are there any contradicting statements in explanation outputs, when looking at different regions?
+5. how far is the explanation from the naive perception? this can be a signal for confidence level
