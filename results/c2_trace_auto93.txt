@@ -1,0 +1,245 @@
+
+==========================================================================
+1. THE DATASET   data/optimize/misc/auto93.csv
+==========================================================================
+rows       : 398
+x columns  : 4   ['Clndrs', 'Volume', 'Model', 'origin']
+y columns  : 3   ['Lbs-', 'Acc+', 'Mpg+']
+             a trailing + is maximize, a trailing - is minimize
+disty      : distance to heaven, 0 is perfect. best row 0.167, average 0.556
+win        : 100 is the best row in this file, 0 is the average row
+
+==========================================================================
+2. THE SPLIT
+==========================================================================
+seed 0: shuffle, then halve. train 199 rows, test 199 rows
+a row's y values are treated as unknown until the row is labelled, and labels cost money
+
+==========================================================================
+3. WHAT EZR CHOSE TO LABEL   (Budget=50)
+==========================================================================
+ezr spent 50 labels out of 199 available train rows.
+it labels a few at random, splits them into best and rest, then keeps labelling
+whichever unlabelled row looks nearer to best than to rest.
+
+the labels it ended up with, best first:
+   win   100.0   Clndrs=4  Volume=97  Model=82  origin=2
+   win    94.1   Clndrs=4  Volume=90  Model=80  origin=2
+   win    92.8   Clndrs=4  Volume=90  Model=80  origin=2
+   win    93.3   Clndrs=4  Volume=90  Model=78  origin=2
+   win    80.7   Clndrs=4  Volume=85  Model=81  origin=3
+   ... 43 more ...
+   win   -10.5   Clndrs=6  Volume=225  Model=77  origin=1
+   win   -70.7   Clndrs=8  Volume=318  Model=70  origin=1
+
+label spread: win 100.0 down to -70.7
+
+==========================================================================
+4. THE EZR TREE   (grown on those labels only, win per node)
+==========================================================================
+n:  32   win:   41     if Volume <= 112
+n:  26   win:   48     |  if Model > 76
+n:  15   win:   60     |  |  if Volume <= 97
+n:   7   win:   79     |  |  |  if Volume > 89
+n:   4   win:   87     |  |  |  |  if Model <= 80;
+n:   3   win:   68     |  |  |  |  if Model > 80;
+n:   8   win:   43     |  |  |  if Volume <= 89
+n:   5   win:   58     |  |  |  |  if Volume <= 86;
+n:   3   win:   19     |  |  |  |  if Volume > 86;
+n:  11   win:   33     |  |  if Volume > 97
+n:   3   win:   48     |  |  |  if Volume > 105;
+n:   8   win:   27     |  |  |  if Volume <= 105
+n:   4   win:   35     |  |  |  |  if Volume <= 98;
+n:   4   win:   19     |  |  |  |  if Volume > 98;
+n:   6   win:   12     |  if Model <= 76;
+n:  18   win:    0     if Volume > 112
+n:  15   win:   10     |  if Volume <= 156
+n:  10   win:   19     |  |  if Model > 78
+n:   7   win:   24     |  |  |  if Volume <= 141
+n:   4   win:   36     |  |  |  |  if Volume <= 134;
+n:   3   win:    8     |  |  |  |  if Volume > 134;
+n:   3   win:    6     |  |  |  if Volume > 141;
+n:   5   win:   -7     |  |  if Model <= 78;
+n:   3   win:  -47     |  if Volume > 156;
+
+Used:  Volume Model
+
+best leaf  : 4 rows, win 87.2
+reached by : Volume <= 112 and Model > 76 and Volume <= 97 and Volume > 89 and Model <= 80
+that path is the ezr explanation: it is where the tree thinks good rows live
+
+==========================================================================
+5. THE LIGHTGBM MODEL   (exact same labels, exact same target)
+==========================================================================
+top splits : Volume:482  Model:421  origin:134  Clndrs:13
+fit error  : 5.2 win units, mean absolute, on its own training labels
+lime and shap both explain THIS model, so they are compared on equal footing with ezr
+
+==========================================================================
+6. EXPLAINER SETUP
+==========================================================================
+background : 199 train rows, x values only, no labels needed
+lime       : perturbs a point, then fits a local linear model to lgbm's output
+shap       : TreeSHAP, plus one direction per feature, learned once from the background
+                     Clndrs  value/attribution correlation -1  so to help, raise it
+                     Volume  value/attribution correlation +1  so to help, lower it
+                      Model  value/attribution correlation -1  so to help, raise it
+                     origin  value/attribution correlation -1  so to help, raise it
+
+==========================================================================
+7. WALKING 3 RANDOM TEST POINTS
+==========================================================================
+
+--------------------------------------------------------------------------
+POINT 1   Clndrs=4  Volume=79  Model=77  origin=2
+  its real y : Lbs-=1825  Acc+=18.6  Mpg+=40    win 76.3
+  no model ever sees that y. each one only predicts, and each starts from
+  its own guess: ezr tree says win 58.2, lightgbm says win 27.5
+
+   [ezr]
+     its path   : Volume <= 112 and Model > 76 and Volume <= 97 and Volume <= 89 and Volume <= 86
+     best path  : Volume <= 112 and Model > 76 and Volume <= 97 and Volume > 89 and Model <= 80
+     it fails   : Volume > 89
+     ranked     : Volume->90.25
+     applied    : Volume   79  ->  90.25
+     new row    : Clndrs=4  Volume=90.25  Model=77  origin=2
+     lands in   : a leaf with win 87.2, while the best leaf is win 87.2
+     model says : win 58.2  ->  87.2   but the model is not the judge
+     truth says : win 76.3  ->  47.0      improvement -29.2
+                  that row is not in the data, so the forest oracle guessed it
+
+   [lime]
+     weights    : Model-0.105  Volume+0.068  origin-0.020  Clndrs-0.001
+                  a positive weight raises disty, which is worse, so step the other way
+     ranked     : Model->81  Volume->68  Clndrs->6
+     applied    : Model   77  ->  81
+     new row    : Clndrs=4  Volume=79  Model=81  origin=2
+     model says : win 27.5  ->  69.1   but the model is not the judge
+     truth says : win 76.3  ->  64.3      improvement -11.9
+                  that row is not in the data, so the forest oracle guessed it
+
+   [shap]
+     shap       : Model+0.070  origin+0.008  Clndrs+0.000  Volume-0.061
+                  positive means this value pushes disty up, so it is the harmful one
+     ranked     : Model->81  origin->1  Clndrs->6  Volume->68
+     applied    : Model   77  ->  81
+     new row    : Clndrs=4  Volume=79  Model=81  origin=2
+     model says : win 27.5  ->  69.1   but the model is not the judge
+     truth says : win 76.3  ->  64.3      improvement -11.9
+                  that row is not in the data, so the forest oracle guessed it
+
+   [rand]
+     control    : shuffle every column, pick a random direction
+     ranked     : Volume->68  origin->1  Clndrs->6  Model->81
+     applied    : Volume   79  ->  68
+     new row    : Clndrs=4  Volume=68  Model=77  origin=2
+     model says : win 27.5  ->  27.5   but the model is not the judge
+     truth says : win 76.3  ->  58.9      improvement -17.3
+                  that row is not in the data, so the forest oracle guessed it
+
+--------------------------------------------------------------------------
+POINT 2   Clndrs=6  Volume=250  Model=77  origin=1
+  its real y : Lbs-=3525  Acc+=19  Mpg+=20    win -3.7
+  no model ever sees that y. each one only predicts, and each starts from
+  its own guess: ezr tree says win -47.9, lightgbm says win -8.7
+
+   [ezr]
+     its path   : Volume > 112 and Volume > 156
+     best path  : Volume <= 112 and Model > 76 and Volume <= 97 and Volume > 89 and Model <= 80
+     it fails   : Volume <= 112
+     ranked     : Volume->90.25
+     applied    : Volume   250  ->  90.25
+     new row    : Clndrs=6  Volume=90.25  Model=77  origin=1
+     lands in   : a leaf with win 87.2, while the best leaf is win 87.2
+     model says : win -47.9  ->  87.2   but the model is not the judge
+     truth says : win -3.7  ->  49.1      improvement +52.8
+                  that row is not in the data, so the forest oracle guessed it
+
+   [lime]
+     weights    : Model-0.110  Volume+0.041  origin+0.025  Clndrs-0.001
+                  a positive weight raises disty, which is worse, so step the other way
+     ranked     : Model->81  Volume->145  origin->3  Clndrs->8
+     applied    : Model   77  ->  81
+     new row    : Clndrs=6  Volume=250  Model=81  origin=1
+     model says : win -8.7  ->  23.0   but the model is not the judge
+     truth says : win -3.7  ->  -1.5      improvement +2.2
+                  that row is not in the data, so the forest oracle guessed it
+
+   [shap]
+     shap       : Volume+0.106  Model+0.049  origin+0.008  Clndrs-0.007
+                  positive means this value pushes disty up, so it is the harmful one
+     ranked     : Volume->145  Model->81  origin->3  Clndrs->8
+     applied    : Volume   250  ->  145
+     new row    : Clndrs=6  Volume=145  Model=77  origin=1
+     model says : win -8.7  ->  -12.7   but the model is not the judge
+     truth says : win -3.7  ->  9.9      improvement +13.6
+                  that row is not in the data, so the forest oracle guessed it
+
+   [rand]
+     control    : shuffle every column, pick a random direction
+     ranked     : Volume->145  Model->81  origin->3  Clndrs->8
+     applied    : Volume   250  ->  145
+     new row    : Clndrs=6  Volume=145  Model=77  origin=1
+     model says : win -8.7  ->  -12.7   but the model is not the judge
+     truth says : win -3.7  ->  9.9      improvement +13.6
+                  that row is not in the data, so the forest oracle guessed it
+
+--------------------------------------------------------------------------
+POINT 3   Clndrs=6  Volume=200  Model=78  origin=1
+  its real y : Lbs-=2965  Acc+=15.8  Mpg+=20    win -5.3
+  no model ever sees that y. each one only predicts, and each starts from
+  its own guess: ezr tree says win -47.9, lightgbm says win 5.0
+
+   [ezr]
+     its path   : Volume > 112 and Volume > 156
+     best path  : Volume <= 112 and Model > 76 and Volume <= 97 and Volume > 89 and Model <= 80
+     it fails   : Volume <= 112
+     ranked     : Volume->90.25
+     applied    : Volume   200  ->  90.25
+     new row    : Clndrs=6  Volume=90.25  Model=78  origin=1
+     lands in   : a leaf with win 87.2, while the best leaf is win 87.2
+     model says : win -47.9  ->  87.2   but the model is not the judge
+     truth says : win -5.3  ->  72.7      improvement +78.0
+                  that row is not in the data, so the forest oracle guessed it
+
+   [lime]
+     weights    : Model-0.107  Volume+0.048  origin+0.024  Clndrs-0.001
+                  a positive weight raises disty, which is worse, so step the other way
+     ranked     : Model->82  Volume->95  origin->3  Clndrs->8
+     applied    : Model   78  ->  82
+     new row    : Clndrs=6  Volume=200  Model=82  origin=1
+     model says : win 5.0  ->  14.2   but the model is not the judge
+     truth says : win -5.3  ->  14.9      improvement +20.1
+                  that row is not in the data, so the forest oracle guessed it
+
+   [shap]
+     shap       : Volume+0.109  origin+0.007  Model-0.005  Clndrs-0.006
+                  positive means this value pushes disty up, so it is the harmful one
+     ranked     : Volume->95  origin->3  Model->82  Clndrs->8
+     applied    : Volume   200  ->  95
+     new row    : Clndrs=6  Volume=95  Model=78  origin=1
+     model says : win 5.0  ->  47.4   but the model is not the judge
+     truth says : win -5.3  ->  42.9      improvement +48.2
+                  that row is not in the data, so the forest oracle guessed it
+
+   [rand]
+     control    : shuffle every column, pick a random direction
+     ranked     : Model->82  Clndrs->8  origin->3  Volume->95
+     applied    : Model   78  ->  82
+     new row    : Clndrs=6  Volume=200  Model=82  origin=1
+     model says : win 5.0  ->  14.2   but the model is not the judge
+     truth says : win -5.3  ->  14.9      improvement +20.1
+                  that row is not in the data, so the forest oracle guessed it
+
+==========================================================================
+8. THIS REPEAT'S SCORE
+==========================================================================
+mean TRUE improvement over those points, in win units:
+
+   ezr      +33.9    from [-29.2, 52.8, 78.0]
+   lime      +3.5    from [-11.9, 2.2, 20.1]
+   shap     +16.6    from [-11.9, 13.6, 48.2]
+   rand      +5.5    from [-17.3, 13.6, 20.1]
+
+the real experiment does this 20 times per dataset, keeps one mean per
+repeat, then hands the four lists to tools/stats.top, which marks the winners with '+'.
