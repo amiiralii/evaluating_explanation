@@ -1,0 +1,129 @@
+dataset,ezr,lime,shap,rand,best
+7z,92.6,81.2,80.6,3.7,ezr lime shap
+A2C_Acrobot,12.0,4.4,6.6,1.6,ezr
+A2C_CartPole,9.3,7.1,4.9,0.4,ezr
+Apache_AllMeasurements,50.3,58.5,63.3,-0.9,shap
+BDBC,97.5,96.0,90.8,-1.9,ezr lime shap
+BankChurners,22.8,9.9,7.4,-0.7,ezr
+Car_price_cleaned,6.5,2.1,3.3,0.5,ezr
+Data_COVID19_Indonesia,59.0,15.3,13.9,0.1,ezr
+FFM-1000-200-0.50-SAT-1,15.0,31.9,30.7,-0.0,lime shap
+FFM-125-25-0.50-SAT-1,8.4,33.5,30.2,5.1,lime
+FFM-250-50-0.50-SAT-1,13.6,29.4,29.1,-2.0,lime shap
+FFM-500-100-0.50-SAT-1,7.7,27.0,26.9,-0.6,lime shap
+FM-500-100-0.25-SAT-1,11.7,20.1,22.9,-2.3,shap
+FM-500-100-0.50-SAT-1,11.8,24.1,23.0,1.4,lime
+FM-500-100-0.75-SAT-1,11.4,27.5,27.1,2.2,lime shap
+FM-500-100-1.00-SAT-1,6.8,28.9,29.5,-0.9,lime shap
+HSMGP_num,47.8,82.2,83.4,-24.6,lime shap
+HSQLDB,35.1,94.5,94.8,-0.0,lime shap
+Health-ClosedIssues0000,60.4,21.7,18.7,0.5,ezr
+Health-ClosedIssues0001,-0.7,15.5,17.4,4.8,lime shap
+Health-ClosedIssues0002,1.8,-0.0,-0.1,-6.1,ezr
+Health-ClosedIssues0003,4.6,2.3,6.9,-3.0,ezr shap
+Health-ClosedIssues0004,2.4,5.8,4.1,-4.4,ezr lime shap
+Health-ClosedIssues0005,5.5,5.1,6.7,-6.1,ezr lime shap
+Health-ClosedIssues0006,24.4,20.9,20.8,-1.0,ezr
+Health-ClosedIssues0007,0.7,0.4,1.0,-0.4,ezr lime shap
+Health-ClosedIssues0008,18.0,15.9,13.9,4.0,ezr lime shap
+Health-ClosedIssues0009,4.3,0.9,3.0,0.8,ezr
+Health-ClosedIssues0010,0.6,0.0,0.5,-0.5,ezr lime shap
+Health-ClosedIssues0011,5.5,1.6,1.1,-5.5,ezr
+Health-ClosedPRs0000,104.9,104.9,104.9,0.0,ezr lime shap
+Health-ClosedPRs0002,41.1,0.0,0.0,-7.5,ezr
+Health-ClosedPRs0003,66.4,0.0,0.0,-7.1,ezr
+Health-ClosedPRs0004,6.9,2.5,1.7,-1.7,ezr
+Health-ClosedPRs0005,11.5,-0.8,-0.5,-9.6,ezr
+Health-ClosedPRs0006,10.2,5.3,4.3,0.1,ezr
+Health-ClosedPRs0007,7.2,2.2,3.2,-3.9,ezr
+Health-ClosedPRs0008,4.4,5.8,2.9,2.3,ezr lime
+Health-ClosedPRs0009,1.6,0.5,1.0,-0.2,ezr
+Health-ClosedPRs0010,6.5,2.7,2.8,0.4,ezr
+Health-ClosedPRs0011,33.6,0.0,0.0,-7.3,ezr
+Health-Commits0000,61.6,24.5,23.0,-2.1,ezr
+Health-Commits0001,13.4,-0.8,-1.1,-11.8,ezr
+Health-Commits0002,0.1,0.1,-0.0,-3.5,ezr
+Health-Commits0003,2.8,-0.3,1.2,-2.3,ezr
+Health-Commits0004,7.7,15.6,14.9,-4.6,lime shap
+Health-Commits0005,8.0,9.1,6.7,-0.6,ezr lime shap
+Health-Commits0006,1.3,36.6,42.6,8.4,lime shap
+Health-Commits0007,32.1,6.8,8.4,0.5,ezr
+Health-Commits0008,4.6,5.2,6.2,2.4,ezr lime shap
+Health-Commits0009,20.4,40.1,36.6,2.3,lime shap
+Health-Commits0010,0.1,-2.8,-3.8,-4.2,ezr
+Health-Commits0011,2.3,-0.0,1.2,-3.8,ezr
+LLVM,37.3,44.8,48.5,4.0,shap
+Life_Expectancy_Data,22.9,11.0,10.6,-0.2,ezr
+Loan,17.6,12.6,12.4,0.0,ezr
+Marketing_Analytics,11.1,5.5,6.2,1.3,ezr
+Medical_Data_and_Hospital_Re,3.5,1.0,4.1,1.2,ezr lime shap rand
+PostgreSQL,2.7,76.2,76.3,-3.0,lime shap
+SQL_AllMeasurements,1.3,1.0,1.4,-2.2,ezr lime shap
+SS-A,51.2,8.1,28.5,-34.1,ezr
+SS-B,50.1,31.1,28.1,-1.6,ezr
+SS-C,51.0,32.1,35.7,-19.4,ezr
+SS-D,26.4,11.7,19.0,-10.7,ezr
+SS-E,35.0,24.7,32.0,-7.0,ezr shap
+SS-F,36.1,-0.3,22.4,-17.9,ezr
+SS-G,34.5,8.6,16.3,-12.8,ezr
+SS-H,60.1,41.0,36.2,0.1,ezr
+SS-I,34.7,22.0,21.9,-1.3,ezr
+SS-J,54.9,21.2,32.9,1.2,ezr
+SS-K,22.4,24.0,17.2,0.5,ezr lime
+SS-L,39.3,33.8,40.9,0.1,ezr shap
+SS-M,0.8,79.2,79.3,0.3,lime shap
+SS-N,17.1,18.4,18.4,-0.4,ezr lime shap
+SS-O,7.5,33.4,41.3,4.4,shap
+SS-P,3.0,43.5,45.2,-0.1,lime shap
+SS-Q,-9.9,72.5,74.6,4.7,lime shap
+SS-R,9.5,42.8,48.5,3.0,shap
+SS-S,70.5,25.0,22.6,-6.0,ezr
+SS-T,63.0,55.8,43.6,10.9,ezr lime
+SS-U,1.1,54.1,51.6,-1.7,lime shap
+SS-V,3.5,40.7,40.7,-0.7,lime shap
+SS-W,7.9,14.1,14.8,1.2,lime shap
+SS-X,8.9,13.4,12.8,1.0,lime shap
+Scrum100k,8.1,18.0,18.0,-0.2,lime shap
+Scrum10k,10.6,19.9,21.9,-1.6,shap
+Scrum1k,9.1,23.9,24.4,-3.0,lime shap
+WA_Fn-UseC_-HR-Employee-Attr,20.8,16.2,17.4,0.7,ezr
+WA_Fn-UseC_-Telco-Customer-C,5.1,25.6,20.4,-2.1,lime
+Wine_quality,7.0,3.5,6.6,0.1,ezr shap
+X264_AllMeasurements,4.3,46.2,50.7,-3.8,shap
+accessories,0.4,0.5,0.1,-0.0,ezr lime
+all_players,9.5,5.2,4.8,0.2,ezr
+auto93,45.4,18.6,21.0,1.8,ezr
+billing10k,15.1,32.8,33.6,-0.7,shap
+coc1000,1.3,0.5,0.0,-1.0,ezr
+dataset120,15.7,7.7,14.1,7.0,ezr shap
+dataset600,23.4,19.9,15.4,10.5,ezr
+dconvert,16.3,50.1,45.6,-1.3,lime shap
+deeparch,28.9,65.5,65.6,-0.4,lime shap
+dress-up,-0.0,0.0,0.0,1.1,ezr lime shap rand
+exastencils,38.0,23.6,37.5,4.4,ezr shap
+home_data_for_ml_course,8.8,0.8,3.3,0.3,ezr
+javagc,52.0,27.0,22.7,-0.6,ezr
+multiLabel,8.3,5.4,11.9,-0.0,shap
+nasa93dem,1.8,8.3,9.5,2.4,lime shap
+player_statistics_cleaned_fi,20.0,15.7,16.1,-1.1,ezr
+pom3a,10.5,4.4,3.6,-0.3,ezr
+pom3b,9.5,3.2,4.0,-1.7,ezr
+pom3c,8.1,1.4,2.3,-1.3,ezr
+pom3d,3.9,5.5,3.4,-1.9,ezr lime shap
+redis,0.2,0.9,1.1,-0.6,ezr lime shap rand
+rs-6d-c3_obj1,83.6,22.6,11.5,-2.5,ezr
+rs-6d-c3_obj2,97.1,84.3,69.6,3.2,ezr
+socks,93.0,45.4,62.6,-21.9,ezr
+sol-6d-c2-obj1,82.6,71.7,73.3,11.8,ezr
+storm,102.5,34.8,0.4,-7.6,ezr
+student_dropout,100.5,59.1,59.1,0.0,ezr
+wallpaper,0.8,11.6,11.1,-0.0,lime shap
+wc+rs-3d-c4-obj1,97.0,67.1,34.6,21.1,ezr
+wc+sol-3d-c4-obj1,95.2,74.3,41.5,18.4,ezr
+wc+wc-3d-c4-obj1,99.4,67.1,48.7,16.7,ezr
+wc-6d-c1-obj1,79.1,61.3,48.4,-0.0,ezr
+x264,17.6,5.5,11.3,-1.6,ezr
+xomo_flight,50.4,24.2,20.7,-0.0,ezr
+xomo_ground,35.0,17.2,15.6,0.1,ezr
+xomo_osp,35.4,11.5,17.2,-0.0,ezr
+xomo_osp2,16.7,12.6,13.2,-1.5,ezr

@@ -58,7 +58,7 @@ write must survive all-symbolic files, all-numeric files, missing values, and th
 
 ## Experiment conventions
 
-Established by `c2_local_counterfactual.py` and worth keeping identical so
+Established by `c2/c2_local_counterfactual.py` and worth keeping identical so
 results are comparable across experiments:
 
 * 20 repeats per dataset. Each repeat seeds both `the.seed` and `random.seed`,
@@ -100,7 +100,7 @@ These cost several full rewrites. Do not relearn them.
 6. **Eleven datasets cannot be scored by anything.** `coc1000`, the `pom3`
    family, `PostgreSQL`, `Medical_Data`, `A2C_Acrobot`, `redis` and friends have
    `orc-r` below 0.7 because their x columns do not determine y. Exclude them from
-   headline claims. `c2_oracle_check.py` finds them.
+   headline claims. `tools/oracle_check.py` finds them.
 7. **Do not invent impossible rows.** A one-standard-deviation numeric step
    produced an 8-cylinder car with 90cc displacement. No oracle can be right about
    a configuration that cannot exist. Prefer suggested values that actually occur
@@ -131,19 +131,24 @@ These cost several full rewrites. Do not relearn them.
 
 ## What exists
 
-* `c2_local_counterfactual.py` — README experiment "Local / C2". Explain a random
+One directory per experiment, shared machinery in `tools/`.
+
+* `c2/c2_local_counterfactual.py` — README experiment "Local / C2". Explain a random
   test point, change ONE feature on that explanation, score the changed row
   against the truth. `-J model` restores the old self-graded score, which measures
   faithfulness (C4) rather than effectiveness (C2).
-* `c2_trace.py` — the same experiment for one dataset and one repeat with every
+* `c2/c2_trace.py` — the same experiment for one dataset and one repeat with every
   step printed: labels bought, tree grown, each explanation, the feature changed,
   the new row, the score. Use it for talks and for debugging a new experiment.
-* `c2_oracle_check.py` — hides rows and asks each oracle to score them, so the
-  scorer itself is validated rather than assumed. Copy this pattern whenever a new
-  experiment needs an estimate.
-* `results/` — `RESULTS.md` (the write-up, including caveats), `c2_results.txt`
-  (128-dataset table), `oracle_check.txt` (oracle validation), and a captured
-  walkthrough.
+* `tools/oracle_check.py` — hides rows and asks each oracle to score them, so the
+  scorer itself is validated rather than assumed. It lives in `tools/` because any
+  experiment that estimates something needs it, and it is deliberately standalone:
+  it carries its own copy of the encoding helpers rather than importing an
+  experiment. Keep it that way.
+* `c2/results/` — `c2_results.csv` (the final report: dataset, one column per
+  method, and which methods tied for best), `c2_results.txt` (the raw sweep, which
+  also carries exact% and orc-r), `RESULTS.md` (the write-up with its caveats),
+  `oracle_check.txt` (oracle validation), and a captured walkthrough.
 
 ## Still to build
 
@@ -170,14 +175,17 @@ measured rather than worked around.
 
 ## Running
 
+Run from the repo root. A relative `-f` path also resolves against the repo
+root, so the scripts work from anywhere.
+
 There is no parallel flag, deliberately. A full 128-dataset sweep takes about two
 hours single-process. Shard it instead, one dataset per process, because each
 dataset's line and its `+` markers are computed independently:
 
 ```sh
 find data/optimize -name '*.csv' | sort \
-  | xargs -P 10 -n 1 sh -c 'python3 c2_local_counterfactual.py -f "$1" | sed -n 2p' _ \
-  > results/lines.txt
+  | xargs -P 10 -n 1 sh -c 'python3 c2/c2_local_counterfactual.py -f "$1" | sed -n 2p' _ \
+  > lines.txt
 ```
 
 That finishes in about ten minutes on 12 cores. Stitch the lines, add the header,

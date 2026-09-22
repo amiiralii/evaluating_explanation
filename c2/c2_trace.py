@@ -17,7 +17,8 @@ from statistics import mean
 from pathlib import Path
 import re, sys, random
 
-sys.path.append(str(Path(__file__).resolve().parent))
+HERE = Path(__file__).resolve().parent
+sys.path[:0] = [str(HERE), str(HERE.parent)]   # own dir, then the repo root
 from tools.ezr import (Data, csv, clone, adds, disty, likely, treeShow, treeLeaf,
                        treeSelects, trace as treeTrace, coerce, main, the)
 from c2_local_counterfactual import (XAI, codes, encode, Ezr, Lgbm, Aux, Truth,

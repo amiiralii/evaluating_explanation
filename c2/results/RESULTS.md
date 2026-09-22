@@ -1,8 +1,9 @@
 # Local / C2: do one-feature counterfactuals actually help?
 
-`python3 c2_local_counterfactual.py -f data/optimize/` over 128 MOOT datasets,
+`python3 c2/c2_local_counterfactual.py -f data/optimize/` over 128 MOOT datasets,
 20 repeats, 20 random test points per repeat, Budget 50 labels, step 1 sd.
-Full table in `c2_results.txt`, a worked example of one repeat in `c2_trace_auto93.txt`.
+Final report in `c2_results.csv`, the raw sweep (with exact% and orc-r) in
+`c2_results.txt`, a worked example of one repeat in `c2_trace_auto93.txt`.
 
 ## How a suggestion is scored
 
@@ -87,7 +88,7 @@ recorded x columns, so drop them from any headline claim.
 
 # Appendix: is the forest oracle trustworthy?
 
-`python3 c2_oracle_check.py -f data/optimize/`  (full table in `oracle_check.txt`)
+`python3 tools/oracle_check.py -f data/optimize/`  (full table in `oracle_check.txt`)
 
 Hide 100 random rows, capped at a third of the file. Fit each oracle on what is
 left, ask it for the disty of each hidden row, compare with the truth. A third

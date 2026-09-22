@@ -36,7 +36,8 @@ from statistics import mean, median
 from pathlib import Path
 import re, sys, math, random, warnings
 
-sys.path.append(str(Path(__file__).resolve().parent))
+HERE = Path(__file__).resolve().parent
+sys.path[:0] = [str(HERE), str(HERE.parent)]   # own dir, then the repo root
 from tools.ezr import (Data, Num, Sym, csv, clone, adds, mid, disty, likely,
                        Tree, treeLeaf, treeSelects, coerce, main, the)
 from tools.stats import top
@@ -220,9 +221,11 @@ def report(file, out, exact, r) -> set:
   return best
 
 def csvs(path) -> list[str]:
-  "One csv, or every csv under a folder."
-  return [path] if path.endswith(".csv") else sorted(
-          str(p) for p in Path(path).rglob("*.csv"))
+  "One csv, or every csv under a folder. A relative path also tries the repo root."
+  p = Path(path)
+  if not p.exists(): p = HERE.parent / path
+  return [str(p)] if str(p).endswith(".csv") else sorted(
+          str(q) for q in p.rglob("*.csv"))
 
 def c2main():
   "top-level call"

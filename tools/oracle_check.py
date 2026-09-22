@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-c2_oracle_check.py: can an oracle score a row it has never seen?
+tools/oracle_check.py: can an oracle score a row it has never seen?
 
 Hide Hold random rows. Fit each oracle on the rows that are left, ask it for the
 disty of each hidden row, then compare with the truth. Everything is in "win"
@@ -8,7 +8,7 @@ units, where 100 is the best row in the file and 0 is the average row.
 
 Three oracles are compared:
 
-    forest   random forest, the default judge in c2_local_counterfactual.py
+    forest   random forest, the judge used by the C2 experiment
     knn      weighted average of the Near closest kept rows, 1/distance weights
     mean     predict the mean of the kept rows, every time. the do-nothing control
 
@@ -32,9 +32,9 @@ from statistics import median
 from pathlib import Path
 import re, sys, random, warnings
 
-sys.path.append(str(Path(__file__).resolve().parent))
-from tools.ezr import Data, Sym, csv, adds, disty, coerce, main, the
-from c2_local_counterfactual import codes, encode, csvs
+HERE = Path(__file__).resolve().parent
+sys.path[:0] = [str(HERE.parent)]              # the repo root, for tools.ezr
+from tools.ezr import Data, Sym, csv, adds, disty, mid, coerce, main, the
 
 warnings.filterwarnings("ignore")
 import numpy as np
@@ -42,6 +42,25 @@ from sklearn.ensemble import RandomForestRegressor
 
 the.__dict__.update({k: coerce(v) for k,v in re.findall(r"(\w+)=(\S+)", __doc__)})
 ORACLES = ["forest", "knn", "mean"]
+
+# encoding, kept here so this tool needs no experiment to run
+def codes(data) -> dict:
+  "Integer codes for the values of each symbolic x column."
+  return {c.at: {v:i for i,v in enumerate(sorted(c.has, key=str))}
+          for c in data.cols.x if c.it is Sym}
+
+def encode(data, code, rows):
+  "Rows as a float matrix over the x columns ('?' becomes the column's mid)."
+  val = lambda c,v: code[c.at][v] if c.it is Sym else float(v)
+  return np.array([[val(c, r[c.at] if r[c.at] != "?" else mid(c))
+                    for c in data.cols.x] for r in rows])
+
+def csvs(path) -> list[str]:
+  "One csv, or every csv under a folder. A relative path also tries the repo root."
+  p = Path(path)
+  if not p.exists(): p = HERE.parent / path
+  return [str(p)] if str(p).endswith(".csv") else sorted(
+          str(q) for q in p.rglob("*.csv"))
 
 def knn1(Z, ys, sym, q) -> float:
   "Weighted mean of the Near closest kept rows."
