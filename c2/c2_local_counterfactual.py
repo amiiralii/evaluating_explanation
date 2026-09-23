@@ -23,6 +23,7 @@ the same labels ezr bought), rand (control: any feature, any direction).
 Options:
 
     -B Budget=50      labels for ezr's active learner
+    -c csv=0          print one csv row per dataset: no header, no tally
     -J Judge=truth    who scores a suggestion (truth|model)
     -L Lime=1000      lime samples per explanation
     -P Points=20      random points per repeat
@@ -215,7 +216,13 @@ def run(file) -> tuple:
 def report(file, out, exact, r) -> set:
   "One line per dataset: median improvement, with '+' marking the best methods."
   best = top(out, reverse=True)
-  print(f"{Path(file).stem[:28]:30}", end="")
+  name = Path(file).stem
+  if the.csv:                            # machine readable: one row, nothing else
+    print(",".join([name] + [f"{median(out[k]):.1f}" for k in XAI]
+                   + [" ".join(k for k in XAI if k in best),
+                      f"{exact:.0f}", f"{r:.2f}"]), flush=True)
+    return best
+  print(f"{name[:28]:30}", end="")
   for k in XAI: print(f"{median(out[k]):8.1f}{'+' if k in best else ' '}", end="")
   print(f"{exact:7.0f}{r:7.2f}", flush=True)
   return best
@@ -230,11 +237,13 @@ def csvs(path) -> list[str]:
 def c2main():
   "top-level call"
   main(the, globals())
-  print(f"{'Data':30}" + "".join(f"{k:>9}" for k in XAI) + f"{'exact%':>7}{'orc-r':>7}")
+  if not the.csv:
+    print(f"{'Data':30}" + "".join(f"{k:>9}" for k in XAI) + f"{'exact%':>7}{'orc-r':>7}")
   wins = {k:0 for k in XAI}
   for f in csvs(the.file):
     for k in report(f, *run(f)): wins[k] += 1
-  print(f"\n{'#best of ' + str(len(csvs(the.file))):30}"
-        + "".join(f"{wins[k]:9}" for k in XAI))
+  if not the.csv:
+    print(f"\n{'#best of ' + str(len(csvs(the.file))):30}"
+          + "".join(f"{wins[k]:9}" for k in XAI))
 
 if __name__ == "__main__": c2main()

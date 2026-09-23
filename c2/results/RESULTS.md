@@ -1,9 +1,16 @@
 # Local / C2: do one-feature counterfactuals actually help?
 
-`python3 c2/c2_local_counterfactual.py -f data/optimize/` over 128 MOOT datasets,
-20 repeats, 20 random test points per repeat, Budget 50 labels, step 1 sd.
-Final report in `c2_results.csv`, the raw sweep (with exact% and orc-r) in
-`c2_results.txt`, a worked example of one repeat in `c2_trace_auto93.txt`.
+`sh c2/sweep.sh` over 128 MOOT datasets, 20 repeats, 20 random test points per
+repeat, Budget 50 labels, step 1 sd. Final report in `c2_results.csv`, the same
+plus exact% and orc-r in `c2_results_full.csv`, a worked example of one repeat in
+`c2_trace_auto93.txt`.
+
+The sweep pins `PYTHONHASHSEED` because ezr picks a symbolic cut by iterating a
+set of strings, so without it ties break differently every run and the ezr column
+moves by a few win units. Two full sweeps with it pinned are byte identical. The
+numbers below were produced before that was found, so a rerun can shift the ezr
+column slightly on datasets with symbolic columns; the win tally is unchanged at
+ezr 91, lime 48, shap 56, rand 3.
 
 ## How a suggestion is scored
 
@@ -111,7 +118,7 @@ extrapolates. So these numbers bound oracle accuracy from above.
 
 ## The orc-r column does its job
 
-`orc-r`, the out-of-bag correlation printed in `c2_results.txt`, correlates 0.94 with the
+`orc-r`, the out-of-bag correlation printed in `c2_results_full.csv`, correlates 0.94 with the
 held-out skill measured here. No dataset with orc-r >= 0.9 turned out to have poor
 held-out skill. Of the 20 datasets orc-r flags below 0.7, 15 do indeed have skill
 at or below 0.3. So the cheap self-report in the main table can be trusted to

@@ -125,6 +125,14 @@ These cost several full rewrites. Do not relearn them.
 * `Data(csv(f))` computes column bounds over every row, so `col.lo`, `col.hi` and
   `col.sd` are global statistics, not training statistics. That is deliberate:
   x values are free here, only labels cost.
+* **ezr is not reproducible unless you pin `PYTHONHASHSEED`.** `_symCuts` in
+  `tools/ezr.py:330` iterates `set(x for x, _ in xys)` to pick a symbolic cut, and
+  Python randomizes string hashing per process, so ties between equally good cuts
+  break differently on every run. On Telco the ezr column moved between 5.4, 3.3
+  and 5.4 across three identical runs, and held at 5.3 with the seed pinned.
+  `c2/sweep.sh` exports `PYTHONHASHSEED=0`. Do the same in any new experiment. The
+  proper fix is `sorted(set(...))` in ezr, which nobody has applied yet because it
+  changes tie-breaking and so shifts every published symbolic result.
 * some repeats are degenerate. If the 50 bought labels all share one objective
   value, every model is constant and every method scores zero. Check the label
   spread before using a repeat as a talking example.
@@ -145,9 +153,10 @@ One directory per experiment, shared machinery in `tools/`.
   experiment that estimates something needs it, and it is deliberately standalone:
   it carries its own copy of the encoding helpers rather than importing an
   experiment. Keep it that way.
+* `c2/sweep.sh` — runs the experiment on every dataset and rewrites the report.
 * `c2/results/` — `c2_results.csv` (the final report: dataset, one column per
-  method, and which methods tied for best), `c2_results.txt` (the raw sweep, which
-  also carries exact% and orc-r), `RESULTS.md` (the write-up with its caveats),
+  method, and which methods tied for best), `c2_results_full.csv` (the same
+  plus exact% and orc-r), `RESULTS.md` (the write-up with its caveats),
   `oracle_check.txt` (oracle validation), and a captured walkthrough.
 
 ## Still to build
