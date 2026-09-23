@@ -15,7 +15,7 @@ The report's last two columns keep the reader honest. exact% is how often the ro
 really was in the data, so no estimate was needed. orc-r is the forest's own
 out-of-bag accuracy, the correlation between its held-out guesses and the real y.
 A dataset with a low orc-r cannot be scored by anything, so ignore what the
-methods score there. c2_oracle_check.py measures all of this properly.
+methods score there. tools/oracle_check.py measures all of this properly.
 
 Methods: ezr (path to the best leaf), lime, shap (both on LightGBM trained on
 the same labels ezr bought), rand (control: any feature, any direction).
