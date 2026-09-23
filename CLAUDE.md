@@ -137,9 +137,59 @@ These cost several full rewrites. Do not relearn them.
   value, every model is constant and every method scores zero. Check the label
   spread before using a repeat as a talking example.
 
-## What exists
+## Layout of an experiment
 
-One directory per experiment, shared machinery in `tools/`.
+One directory per README criterion, named for it: `c1/`, `c3/`, `c5/`, and so on.
+Shared machinery lives in `tools/`, never inside an experiment directory, and a
+tool must never import an experiment. If two experiments need the same helper,
+either give the tool its own copy or move the helper to `tools/`.
+
+    c3/
+      c3_<what_it_does>.py      the experiment                        required
+      c3_trace.py               one dataset, one repeat, every step    optional
+      sweep.sh                  run every dataset, rewrite the report  required
+      results/
+        c3_results.csv          the report: dataset, a column per method, best
+        c3_results_full.csv     the same plus any diagnostic columns
+        RESULTS.md              the write-up, including what not to trust
+        c3_trace_<dataset>.txt  a captured walkthrough, if there is a trace
+        oracle_check.txt        output of tools/oracle_check.py, if the
+                                experiment estimates anything it cannot look up
+
+The experiment script owes four things to the rest of the setup.
+
+* **A `-c csv=1` flag** that prints ONE csv row per dataset and nothing else, no
+  header and no tally. `sweep.sh` depends on it. Without it the sweep has to
+  parse the aligned console output by character offset, which breaks silently the
+  first time a number grows wider than its column.
+* **A human readable default**, one aligned line per dataset with `+` marking the
+  statistically best methods. Both formats come from the same `report()`.
+* **This path preamble**, because the file now sits one level below the root:
+
+      HERE = Path(__file__).resolve().parent
+      sys.path[:0] = [str(HERE), str(HERE.parent)]   # own dir, then the repo root
+
+* **A `csvs()` that falls back to the repo root** (`if not p.exists(): p =
+  HERE.parent / path`), so a relative `-f data/optimize/...` works from any
+  working directory, not only from the root.
+
+For `sweep.sh`, copy `c2/sweep.sh` and change four things: `OUT`, the two result
+filenames, and the script named inside the `xargs` line. It already handles what
+is easy to forget: it `cd`s to the repo root, exports
+`PYTHONHASHSEED=0`, sorts the interleaved output of the parallel shards so the
+file is deterministic, splits the full csv into the report with `cut`, and warns
+when a dataset produced no row instead of letting it vanish.
+
+Sharding one process per dataset is only valid because each dataset's row is
+self-contained: `top()` compares the methods within one dataset and never across
+datasets. An experiment that needs cross-dataset statistics before printing
+cannot be parallelized this way.
+
+`RESULTS.md` carries the command that produced it, what the columns mean, the
+headline table, and a section on what not to trust. A result with no caveats
+section is not finished.
+
+## What exists
 
 * `c2/c2_local_counterfactual.py` — README experiment "Local / C2". Explain a random
   test point, change ONE feature on that explanation, score the changed row
