@@ -234,21 +234,32 @@ measured rather than worked around.
 
 ## Running
 
-Run from the repo root. A relative `-f` path also resolves against the repo
-root, so the scripts work from anywhere.
+Run from the repo root, though a relative `-f` path also resolves against the
+repo root so the scripts work from anywhere.
 
-There is no parallel flag, deliberately. A full 128-dataset sweep takes about two
-hours single-process. Shard it instead, one dataset per process, because each
-dataset's line and its `+` markers are computed independently:
+One dataset, human readable:
 
 ```sh
-find data/optimize -name '*.csv' | sort \
-  | xargs -P 10 -n 1 sh -c 'python3 c2/c2_local_counterfactual.py -f "$1" | sed -n 2p' _ \
-  > lines.txt
+python3 c2/c2_local_counterfactual.py -f data/optimize/misc/auto93.csv
 ```
 
-That finishes in about ten minutes on 12 cores. Stitch the lines, add the header,
-and tally the `+` marks for the summary row.
+Every dataset, rewriting the report:
+
+```sh
+sh c2/sweep.sh              # or: sh c2/sweep.sh 12 data/optimize/config
+```
+
+There is no parallel flag inside the python, deliberately. The sweep script
+shards instead, one process per dataset, which turns about two hours into about
+ten minutes on twelve cores. It also pins `PYTHONHASHSEED`, sorts the shards back
+into a deterministic order, and warns if a dataset produced no row. Do not
+hand-roll that pipeline in a new experiment; copy the script.
+
+Validate a scorer before trusting it:
+
+```sh
+python3 tools/oracle_check.py -f data/optimize/
+```
 
 ## How to work here
 
