@@ -1,0 +1,189 @@
+
+==============================================================================
+1. THE DATASET   data/optimize/config/X264_AllMeasurements.csv
+==============================================================================
+rows       : 1152
+x columns  : 16   ['no_asm', 'no_8x8dct', 'no_cabac', 'no_deblock', 'no_fast_pskip', 'no_mbtree', 'no_mixed_refs', 'no_weightb', 'rc_lookahead', 'rc_lookahead_20', 'rc_lookahead_40', 'rc_lookahead_60'] ...
+y columns  : 1   ['Performance-']
+disty      : distance to heaven, 0 is perfect. best row 0.000, average 0.377
+win        : 100 is the best row in this file, 0 is the average row
+the question: if each method may keep only K features, does a model retrained
+              on those K still find rows as good as the model that saw them all?
+
+==============================================================================
+2. FIXING K, BEFORE ANY REPEAT   (10 ezr trees, each on a random half)
+==============================================================================
+   tree  1    4 features  ####              no_8x8dct no_cabac no_deblock no_fast_pskip
+   tree  2    5 features  #####             no_8x8dct no_cabac no_deblock no_fast_pskip no_mbtree
+   tree  3    8 features  ########          no_8x8dct no_cabac no_deblock no_fast_pskip no_mixed_refs no
+   tree  4    5 features  #####             no_8x8dct no_cabac no_deblock no_fast_pskip no_mixed_refs
+   tree  5    6 features  ######            no_8x8dct no_cabac no_deblock no_fast_pskip no_weightb ref_1
+   tree  6    6 features  ######            no_8x8dct no_cabac no_deblock no_fast_pskip no_mixed_refs rc
+   tree  7    6 features  ######            no_8x8dct no_cabac no_deblock no_fast_pskip no_mbtree ref_1
+   tree  8    8 features  ########          no_8x8dct no_cabac no_deblock no_fast_pskip no_mbtree no_wei
+   tree  9    5 features  #####             no_8x8dct no_cabac no_deblock no_fast_pskip no_mbtree
+   tree 10    6 features  ######            no_8x8dct no_cabac no_deblock no_fast_pskip no_mixed_refs rc
+
+K = median of [4, 5, 8, 5, 6, 6, 6, 8, 5, 6] = 6   (out of 16 x columns)
+only the COUNT is kept. which features those trees used is thrown away, so K
+says how many features a good explanation may name, not which ones.
+
+==============================================================================
+3. THE SPLIT AND THE LABELS   (seed 0, Budget=50)
+==============================================================================
+train 576 rows, test 576 rows. ezr bought 50 labels from train.
+label spread: win 92.8 down to -144.4
+every model below, full or reduced, trains on exactly these labels.
+
+==============================================================================
+4. THE TWO FULL MODELS   (all features, the predecessors)
+==============================================================================
+n:  20   win:   47     if no_8x8dct == 0
+n:   9   win:   59     |  if no_cabac == 0
+n:   5   win:   78     |  |  if no_deblock != 0;
+n:   4   win:   35     |  |  if no_deblock == 0;
+n:  11   win:   38     |  if no_cabac != 0
+n:   6   win:   48     |  |  if no_deblock == 0
+n:   3   win:   79     |  |  |  if no_mbtree != 0;
+n:   3   win:   18     |  |  |  if no_mbtree == 0;
+n:   5   win:   25     |  |  if no_deblock != 0;
+n:  30   win:   33     if no_8x8dct != 0
+n:  22   win:   55     |  if no_cabac == 0
+n:  11   win:   69     |  |  if no_deblock != 0
+n:   3   win:   72     |  |  |  if no_fast_pskip == 0;
+n:   8   win:   68     |  |  |  if no_fast_pskip != 0
+n:   4   win:   83     |  |  |  |  if no_mbtree != 0;
+n:   4   win:   53     |  |  |  |  if no_mbtree == 0;
+n:  11   win:   40     |  |  if no_deblock == 0
+n:   6   win:   44     |  |  |  if no_fast_pskip != 0
+n:   3   win:   69     |  |  |  |  if no_mixed_refs != 0;
+n:   3   win:   19     |  |  |  |  if no_mixed_refs == 0;
+n:   5   win:   35     |  |  |  if no_fast_pskip == 0;
+n:   8   win:  -24     |  if no_cabac != 0
+n:   3   win:   45     |  |  if no_deblock == 0;
+n:   5   win:  -67     |  |  if no_deblock != 0;
+
+Used:  no_deblock no_cabac no_fast_pskip no_mbtree no_8x8dct no_mixed_refs
+
+this tree splits on 6 features; K is 6.
+since that is not more than K, MDI's top K will contain every one of them, and
+retraining ezr on them grows this SAME tree: ezr-on-ezr scores 0 by construction.
+
+lightgbm, same labels, same target, all features: lime and shap explain this one.
+
+==============================================================================
+5. EACH METHOD RANKS THE FEATURES GLOBALLY
+==============================================================================
+
+[ezr]  mean decrease in impurity over the ezr tree's splits
+             no_cabac ##############################    0.5636  KEEP
+           no_deblock ##########################....    0.4842  KEEP
+            no_mbtree ######........................    0.1062  KEEP
+        no_mixed_refs ###...........................    0.0523  KEEP
+            no_8x8dct ##............................    0.0333  KEEP
+        no_fast_pskip ..............................    0.0031  KEEP
+               no_asm ..............................    0.0000      
+           no_weightb ..............................    0.0000      
+         rc_lookahead ..............................    0.0000      
+      rc_lookahead_20 ..............................    0.0000      
+      rc_lookahead_40 ..............................    0.0000      
+      rc_lookahead_60 ..............................    0.0000      
+                  ... 4 more
+
+[lime]  mean |lime weight| over 20 train rows, on lightgbm
+                ref_9 ##############################    9.5339  KEEP
+                ref_1 ###########...................    3.5458  KEEP
+        no_mixed_refs ######........................    2.0240  KEEP
+        no_fast_pskip #####.........................    1.6734  KEEP
+            no_mbtree ##............................    0.5030  KEEP
+             no_cabac #.............................    0.3120  KEEP
+            no_8x8dct #.............................    0.2029      
+           no_deblock ..............................    0.1446      
+      rc_lookahead_60 ..............................    0.0865      
+                ref_5 ..............................    0.0854      
+           no_weightb ..............................    0.0704      
+      rc_lookahead_40 ..............................    0.0647      
+                  ... 4 more
+
+[shap]  mean |shap value| over 512 train rows, on lightgbm
+                ref_9 ##############################    0.2005  KEEP
+                ref_1 ################..............    0.1082  KEEP
+        no_mixed_refs ######........................    0.0382  KEEP
+        no_fast_pskip #####.........................    0.0321  KEEP
+            no_mbtree ##............................    0.0158  KEEP
+             no_cabac #.............................    0.0065  KEEP
+            no_8x8dct #.............................    0.0063      
+           no_deblock ..............................    0.0019      
+      rc_lookahead_60 ..............................    0.0017      
+      rc_lookahead_20 ..............................    0.0010      
+                ref_5 ..............................    0.0009      
+           no_weightb ..............................    0.0009      
+                  ... 4 more
+
+[rand]  control: a random number per feature
+                  ref ##############################    0.9153  KEEP
+      rc_lookahead_60 #############################.    0.8702  KEEP
+                ref_9 ########################......    0.7336  KEEP
+         rc_lookahead #####################.........    0.6517  KEEP
+           no_weightb ###################...........    0.5900  KEEP
+            no_8x8dct ###################...........    0.5886  KEEP
+      rc_lookahead_20 #################.............    0.5169      
+        no_fast_pskip #############.................    0.3925      
+               no_asm ############..................    0.3526      
+           no_deblock #########.....................    0.2857      
+             no_cabac #########.....................    0.2827      
+                ref_5 #########.....................    0.2616      
+                  ... 4 more
+
+==============================================================================
+6. WHO KEPT WHAT   (K = 6; # kept, . dropped)
+==============================================================================
+                       ezr  lime  shap  rand
+         no_8x8dct       #     .     .     #
+          no_cabac       #     #     #     .
+        no_deblock       #     .     .     .
+     no_fast_pskip       #     #     #     .
+         no_mbtree       #     #     #     .
+     no_mixed_refs       #     #     #     .
+        no_weightb       .     .     .     #
+      rc_lookahead       .     .     .     #
+   rc_lookahead_60       .     .     .     #
+               ref       .     .     .     #
+             ref_1       .     #     #     .
+             ref_9       .     #     #     #
+features no method kept: 4
+
+==============================================================================
+7. RETRAIN ON EACH TOP-K, THEN PICK FROM THE TEST HALF   (Check=5)
+==============================================================================
+each model sorts the 576 test rows by its prediction and picks its top 5.
+test rows are real, so their true win is looked up, never estimated.
+a model's score is the best TRUE win among its 5 picks.
+
+for reference: the best row in the test half is win 100.0
+
+--- learner: ezr ---------------------------------------------------------
+       all features  picks   -0.4  -87.1   -0.5   78.5 -147.9   best   78.5  ################....
+        ezr's top 6  picks   -0.4  -87.1   -0.5   78.5 -147.9   best   78.5  ################....
+       lime's top 6  picks   84.7   91.6   91.0   83.8   85.5   best   91.6  ##################..
+       shap's top 6  picks   84.7   91.6   91.0   83.8   85.5   best   91.6  ##################..
+       rand's top 6  picks   -6.6   76.3   74.4  -71.0   76.4   best   76.4  ###############.....
+
+--- learner: lgbm --------------------------------------------------------
+       all features  picks   98.5   99.0   98.5   98.4  100.0   best  100.0  ####################
+        ezr's top 6  picks  -27.7  -27.4   72.1 -121.9   72.0   best   72.1  ##############......
+       lime's top 6  picks   99.0  100.0   99.0   91.6   98.4   best  100.0  ####################
+       shap's top 6  picks   99.0  100.0   99.0   91.6   98.4   best  100.0  ####################
+       rand's top 6  picks   69.4  -50.4   89.7   85.3   87.9   best   89.7  ##################..
+
+
+==============================================================================
+8. THIS REPEAT'S SCORE   (reduced minus full; 0 = nothing lost)
+==============================================================================
+                ezr     lime     shap     rand
+     ezr       +0.0    +13.1    +13.1     -2.1
+    lgbm      -27.9     +0.0     +0.0    -10.3
+
+the real experiment does this 20 times per dataset, keeps one number per
+repeat and learner, then hands each learner's four lists to tools/stats.top,
+which marks the winners with '+'.
