@@ -1,0 +1,138 @@
+
+==============================================================================
+1. THE DATASET   data/optimize/misc/auto93.csv
+==============================================================================
+rows       : 398
+x columns  : 4   ['Clndrs', 'Volume', 'Model', 'origin']
+y columns  : 3   ['Lbs-', 'Acc+', 'Mpg+']
+win        : 100 is the best row in this file, 0 is the average row
+the question: explain a point, explain a point just like it. do the two
+              explanations name the same top 3 features?
+
+==============================================================================
+2. THE SPLIT, THE LABELS, THE TWO MODELS   (seed 0, Budget=50)
+==============================================================================
+train 199 rows, test 199 rows. ezr bought 50 labels, spread win 100.0 down to -70.7.
+
+the ezr tree (win per node). its explanation of a row is that row's path:
+
+n:  38   win:   41     if Model > 76
+n:  29   win:   50     |  if Volume <= 121
+n:  15   win:   59     |  |  if Volume <= 97
+n:   7   win:   73     |  |  |  if Volume > 89
+n:   4   win:   81     |  |  |  |  if Model <= 80;
+n:   3   win:   64     |  |  |  |  if Model > 80;
+n:   8   win:   47     |  |  |  if Volume <= 89
+n:   5   win:   59     |  |  |  |  if Volume <= 86;
+n:   3   win:   26     |  |  |  |  if Volume > 86;
+n:  14   win:   40     |  |  if Volume > 97
+n:   7   win:   43     |  |  |  if Model > 81;
+n:   7   win:   36     |  |  |  if Model <= 81
+n:   4   win:   39     |  |  |  |  if Volume <= 98;
+n:   3   win:   32     |  |  |  |  if Volume > 98;
+n:   9   win:   11     |  if Volume > 121
+n:   5   win:   16     |  |  if Volume > 140;
+n:   4   win:    5     |  |  if Volume <= 140;
+n:  12   win:    2     if Model <= 76
+n:   8   win:   13     |  if Volume <= 116
+n:   4   win:   15     |  |  if Volume <= 90;
+n:   4   win:   11     |  |  if Volume > 90;
+n:   4   win:  -18     |  if Volume > 116;
+
+Used:  Volume Model
+
+lightgbm is fit on the same labels; lime and shap explain it.
+
+==============================================================================
+3. WALKING 20 RANDOM TEST POINTS   (first 4 in full)
+==============================================================================
+neighbour = nearest REAL row with different x whose prediction moves at most
+10 win units under BOTH models, among its 20 nearest rows with different x.
+each explanation is cut to its top 3 features; overlap = shared / all.
+
+------------------------------------------------------------------------------
+POINT 1   Clndrs=4  Volume=79  Model=77  origin=2
+   predicted win: ezr 59.6, lightgbm 27.5   (true win 76.3)
+   try row at distance 0.0233: predicted 81.0 / 15.2   reject, prediction moved too far
+   try row at distance 0.0233: predicted 81.0 / 15.2   reject, prediction moved too far
+   try row at distance 0.0436: predicted 26.3 / 28.6   reject, prediction moved too far
+   try row at distance 0.0440: predicted 81.0 / 83.7   reject, prediction moved too far
+   try row at distance 0.0440: predicted 15.4 / 39.9   reject, prediction moved too far
+   try row at distance 0.0477: predicted 11.6 / 15.2   reject, prediction moved too far
+   try row at distance 0.0504: predicted 11.6 / 18.2   reject, prediction moved too far
+   try row at distance 0.0543: predicted 32.6 / 18.0   reject, prediction moved too far
+   try row at distance 0.0552: predicted 11.6 / 3.8   reject, prediction moved too far
+   try row at distance 0.0634: predicted 11.6 / 16.4   reject, prediction moved too far
+   try row at distance 0.0674: predicted -18.4 / 16.4   reject, prediction moved too far
+   try row at distance 0.0684: predicted 32.6 / 28.3   reject, prediction moved too far
+   try row at distance 0.0780: predicted -18.4 / -14.6   reject, prediction moved too far
+   try row at distance 0.0843: predicted 26.3 / 21.2   reject, prediction moved too far
+   try row at distance 0.0845: predicted 15.4 / 31.8   reject, prediction moved too far
+   try row at distance 0.0845: predicted 15.4 / 31.8   reject, prediction moved too far
+   try row at distance 0.0848: predicted 81.0 / 50.5   reject, prediction moved too far
+   try row at distance 0.0954: predicted 11.6 / 15.0   reject, prediction moved too far
+   try row at distance 0.0987: predicted -18.4 / 15.0   reject, prediction moved too far
+   try row at distance 0.0994: predicted -18.4 / 16.6   reject, prediction moved too far
+   no close enough neighbour: this point is skipped
+
+------------------------------------------------------------------------------
+POINT 2   Clndrs=6  Volume=250  Model=77  origin=1
+   predicted win: ezr 16.5, lightgbm -8.7   (true win -3.7)
+   try row at distance 0.0245: predicted 16.5 / -8.7   ACCEPT
+   changed    : Volume: 250 -> 231
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Model, Volume}=  point only {}  neighbour only {}
+   [lime] 1.00 ####################  {Model, Volume, origin}=  point only {}  neighbour only {}
+   [shap] 1.00 ####################  {Model, Volume, origin}=  point only {}  neighbour only {}
+   [rand] 0.50 ##########..........  {Model, origin}=  point only {Volume}  neighbour only {Clndrs}
+   lime twice on the SAME point: 1.00  {Model, Volume, origin}=  point only {}  neighbour only {}
+
+------------------------------------------------------------------------------
+POINT 3   Clndrs=6  Volume=200  Model=78  origin=1
+   predicted win: ezr 16.5, lightgbm 5.0   (true win -5.3)
+   try row at distance 0.0323: predicted 16.5 / 5.0   ACCEPT
+   changed    : Volume: 200 -> 225
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Model, Volume}=  point only {}  neighbour only {}
+   [lime] 1.00 ####################  {Model, Volume, origin}=  point only {}  neighbour only {}
+   [shap] 1.00 ####################  {Clndrs, Volume, origin}=  point only {}  neighbour only {}
+   [rand] 0.50 ##########..........  {Model, origin}=  point only {Volume}  neighbour only {Clndrs}
+   lime twice on the SAME point: 1.00  {Model, Volume, origin}=  point only {}  neighbour only {}
+
+------------------------------------------------------------------------------
+POINT 4   Clndrs=4  Volume=140  Model=78  origin=1
+   predicted win: ezr 5.3, lightgbm -1.2   (true win 22.2)
+   try row at distance 0.0142: predicted 16.5 / 2.8   reject, prediction moved too far
+   try row at distance 0.0207: predicted 16.5 / 2.8   reject, prediction moved too far
+   try row at distance 0.0417: predicted 5.3 / -14.9   reject, prediction moved too far
+   try row at distance 0.0417: predicted 5.3 / 18.7   reject, prediction moved too far
+   try row at distance 0.0440: predicted 16.5 / -10.8   reject, prediction moved too far
+   try row at distance 0.0440: predicted 16.5 / 24.3   reject, prediction moved too far
+   try row at distance 0.0440: predicted 16.5 / 24.3   reject, prediction moved too far
+   try row at distance 0.0452: predicted 32.6 / 25.7   reject, prediction moved too far
+   try row at distance 0.0477: predicted 5.3 / 21.0   reject, prediction moved too far
+   try row at distance 0.0484: predicted 32.6 / 31.4   reject, prediction moved too far
+   try row at distance 0.0543: predicted 39.2 / 43.4   reject, prediction moved too far
+   try row at distance 0.0543: predicted 39.2 / 43.4   reject, prediction moved too far
+   try row at distance 0.0560: predicted 32.6 / 18.9   reject, prediction moved too far
+   try row at distance 0.0615: predicted 32.6 / 19.3   reject, prediction moved too far
+   try row at distance 0.0615: predicted 32.6 / 19.3   reject, prediction moved too far
+   try row at distance 0.0684: predicted 39.2 / 31.2   reject, prediction moved too far
+   try row at distance 0.0684: predicted 39.2 / 31.2   reject, prediction moved too far
+   try row at distance 0.0684: predicted 39.2 / 36.2   reject, prediction moved too far
+   try row at distance 0.0833: predicted -18.4 / -14.9   reject, prediction moved too far
+   try row at distance 0.0833: predicted -18.4 / -14.9   reject, prediction moved too far
+   no close enough neighbour: this point is skipped
+
+==============================================================================
+4. THIS REPEAT'S SCORE   (mean overlap over the points with a neighbour)
+==============================================================================
+   ezr    1.00 ##############################   from 17 pairs
+   lime   0.97 #############################.   from 17 pairs
+   shap   0.97 #############################.   from 17 pairs
+   rand   0.62 ###################...........   from 17 pairs
+   lime on the same point twice: 1.00
+
+rand is what two unrelated sets of 3 reach by chance. the real experiment
+does this 20 times per dataset, keeps one mean per repeat, then hands
+the four lists to tools/stats.top, which marks the most stable with '+'.

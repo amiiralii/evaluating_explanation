@@ -1,0 +1,15 @@
+kind,group,n,ezr_best,lime_best,shap_best,rand_best,ezr_sole,lime_sole,shap_sole,rand_sole
+subset,all,128,125,25,18,10,96,2,0,0
+subset,x>Top,118,116,15,8,0,96,2,0,0
+family,behavior_data,4,4,0,1,0,3,0,0,0
+family,binary_config,12,12,8,0,0,4,0,0,0
+family,config,35,32,13,12,10,20,2,0,0
+family,financial_data,4,4,0,0,0,4,0,0,0
+family,health_data,3,3,0,0,0,3,0,0,0
+family,hpo,35,35,0,1,0,34,0,0,0
+family,misc,4,4,0,0,0,4,0,0,0
+family,process,10,10,2,0,0,8,0,0,0
+family,rl,2,2,0,0,0,2,0,0,0
+family,sales_data,5,5,0,3,0,2,0,0,0
+family,systems,12,12,2,1,0,10,0,0,0
+family,test,2,2,0,0,0,2,0,0,0

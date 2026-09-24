@@ -1,0 +1,132 @@
+
+==============================================================================
+1. THE DATASET   data/optimize/config/SS-N.csv
+==============================================================================
+rows       : 53662
+x columns  : 17   ['No_mbtree', 'No_asm', 'No_cabac', 'No_scenecut', 'Aq_strength', 'Bframes', 'Qcomp', 'Qp', 'Ref', 'Rc_lookahead', 'B_bias', 'Threads'] ...
+y columns  : 2   ['PSNR-', 'Energy-']
+win        : 100 is the best row in this file, 0 is the average row
+the question: explain a point, explain a point just like it. do the two
+              explanations name the same top 3 features?
+
+==============================================================================
+2. THE SPLIT, THE LABELS, THE TWO MODELS   (seed 0, Budget=50)
+==============================================================================
+train 26831 rows, test 26831 rows. ezr bought 50 labels, spread win 28.0 down to -33.9.
+
+the ezr tree (win per node). its explanation of a row is that row's path:
+
+n:  30   win:   17     if Crf > 26.7
+n:  24   win:   20     |  if No_mbtree <= 0
+n:  17   win:   22     |  |  if Ipratio <= 0.7
+n:   7   win:   25     |  |  |  if Aq_strength <= 0.7
+n:   4   win:   27     |  |  |  |  if Seek <= 418;
+n:   3   win:   23     |  |  |  |  if Seek > 418;
+n:  10   win:   20     |  |  |  if Aq_strength > 0.7
+n:   5   win:   22     |  |  |  |  if Keyint <= 334;
+n:   5   win:   19     |  |  |  |  if Keyint > 334;
+n:   7   win:   16     |  |  if Ipratio > 0.7
+n:   4   win:   20     |  |  |  if Keyint <= 334;
+n:   3   win:   10     |  |  |  if Keyint > 334;
+n:   6   win:    5     |  if No_mbtree > 0;
+n:  20   win:  -12     if Crf <= 26.7
+n:   3   win:   -7     |  if No_mbtree > 0;
+n:  17   win:  -13     |  if No_mbtree <= 0
+n:  14   win:  -12     |  |  if No_asm <= 0
+n:   4   win:  -11     |  |  |  if No_cabac > 0;
+n:  10   win:  -13     |  |  |  if No_cabac <= 0
+n:   6   win:  -12     |  |  |  |  if Scenecut <= 34;
+n:   4   win:  -14     |  |  |  |  if Scenecut > 34;
+n:   3   win:  -15     |  |  if No_asm > 0;
+
+Used:  No_mbtree Keyint No_asm No_cabac Aq_strength Crf Scenecut Seek Ipratio
+
+lightgbm is fit on the same labels; lime and shap explain it.
+
+==============================================================================
+3. WALKING 20 RANDOM TEST POINTS   (first 5 in full)
+==============================================================================
+neighbour = nearest REAL row with different x whose prediction moves at most
+10 win units under BOTH models, among its 20 nearest rows with different x.
+each explanation is cut to its top 3 features; overlap = shared / all.
+
+------------------------------------------------------------------------------
+POINT 1   No_mbtree=0  No_asm=0  No_cabac=0  No_scenecut=1  Aq_strength=0.6  Bframes=25  Qcomp=0.2  Qp=16  Ref=4  Rc_lookahead=1  B_bias=-67  Threads=42  ...+5 more
+   predicted win: ezr 10.8, lightgbm 28.2   (true win 18.6)
+   try row at distance 0.1215: predicted 10.8 / 13.0   reject, prediction moved too far
+   try row at distance 0.1560: predicted 27.2 / 23.5   reject, prediction moved too far
+   try row at distance 0.1607: predicted 10.8 / 28.1   ACCEPT
+   changed    : Aq_strength: 0.6 -> 0.7, Bframes: 25 -> 23, Qcomp: 0.2 -> 0.4, Qp: 16 -> 26, Rc_lookahead: 1 -> 3, B_bias: -67 -> 27  ...+6 more
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Crf, Ipratio, No_mbtree}=  point only {}  neighbour only {}
+   [lime] 1.00 ####################  {Crf, Keyint, Threads}=  point only {}  neighbour only {}
+   [shap] 1.00 ####################  {Crf, Seek, Threads}=  point only {}  neighbour only {}
+   [rand] 0.00 ....................    point only {B_bias, No_mbtree, Qp}  neighbour only {Keyint, No_cabac, Qcomp}
+   lime twice on the SAME point: 1.00  {Crf, Seek, Threads}=  point only {}  neighbour only {}
+
+------------------------------------------------------------------------------
+POINT 2   No_mbtree=0  No_asm=0  No_cabac=0  No_scenecut=1  Aq_strength=0.7  Bframes=9  Qcomp=0.4  Qp=34  Ref=6  Rc_lookahead=84  B_bias=34  Threads=86  ...+5 more
+   predicted win: ezr -13.0, lightgbm -13.5   (true win -13.9)
+   try row at distance 0.0000: predicted 20.2 / 13.7   reject, prediction moved too far
+   try row at distance 0.0088: predicted 20.2 / 9.9   reject, prediction moved too far
+   try row at distance 0.0088: predicted -13.0 / -13.8   ACCEPT
+   changed    : Qcomp: 0.4 -> 0.8
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Crf, No_asm, No_mbtree}=  point only {}  neighbour only {}
+   [lime] 0.20 ####................  {Crf}=  point only {Seek, Threads}  neighbour only {Keyint, No_asm}
+   [shap] 1.00 ####################  {Crf, Ipratio, Seek}=  point only {}  neighbour only {}
+   [rand] 0.20 ####................  {Threads}=  point only {Qcomp, Rc_lookahead}  neighbour only {B_bias, Keyint}
+   lime twice on the SAME point: 0.50  {Crf, Threads}=  point only {No_asm}  neighbour only {Keyint}
+
+------------------------------------------------------------------------------
+POINT 3   No_mbtree=1  No_asm=0  No_cabac=1  No_scenecut=1  Aq_strength=0.6  Bframes=9  Qcomp=0  Qp=40  Ref=8  Rc_lookahead=43  B_bias=32  Threads=128  ...+5 more
+   predicted win: ezr 5.5, lightgbm 0.8   (true win 17.0)
+   try row at distance 0.1619: predicted 5.5 / 13.4   reject, prediction moved too far
+   try row at distance 0.2123: predicted 5.5 / 0.5   ACCEPT
+   changed    : Aq_strength: 0.6 -> 6, Crf: 30.1 -> 301000000000000.0, Ipratio: 1.2 -> 12
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Crf, No_mbtree}=  point only {}  neighbour only {}
+   [lime] 0.50 ##########..........  {Crf, Threads}=  point only {No_asm}  neighbour only {Ipratio}
+   [shap] 1.00 ####################  {Crf, Keyint, No_mbtree}=  point only {}  neighbour only {}
+   [rand] 0.00 ....................    point only {Ipratio, No_asm, Seek}  neighbour only {Aq_strength, Crf, Qcomp}
+   lime twice on the SAME point: 1.00  {Crf, No_asm, Threads}=  point only {}  neighbour only {}
+
+------------------------------------------------------------------------------
+POINT 4   No_mbtree=0  No_asm=0  No_cabac=0  No_scenecut=0  Aq_strength=0.7  Bframes=17  Qcomp=0.4  Qp=34  Ref=6  Rc_lookahead=84  B_bias=34  Threads=43  ...+5 more
+   predicted win: ezr -13.0, lightgbm -14.1   (true win -11.8)
+   try row at distance 0.0000: predicted 23.8 / 20.9   reject, prediction moved too far
+   try row at distance 0.0088: predicted -13.0 / -15.2   ACCEPT
+   changed    : Qcomp: 0.4 -> 0.8
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Crf, No_asm, No_mbtree}=  point only {}  neighbour only {}
+   [lime] 0.50 ##########..........  {Crf, Threads}=  point only {Keyint}  neighbour only {No_asm}
+   [shap] 0.50 ##########..........  {Crf, Seek}=  point only {Ref}  neighbour only {Qcomp}
+   [rand] 0.20 ####................  {Bframes}=  point only {Keyint, No_scenecut}  neighbour only {B_bias, Qcomp}
+   lime twice on the SAME point: 1.00  {Crf, Keyint, No_asm}=  point only {}  neighbour only {}
+
+------------------------------------------------------------------------------
+POINT 5   No_mbtree=0  No_asm=0  No_cabac=0  No_scenecut=0  Aq_strength=1.4  Bframes=17  Qcomp=0.4  Qp=17  Ref=3  Rc_lookahead=84  B_bias=-33  Threads=86  ...+5 more
+   predicted win: ezr -14.1, lightgbm -8.6   (true win -1.6)
+   try row at distance 0.0000: predicted 22.6 / 25.5   reject, prediction moved too far
+   try row at distance 0.0088: predicted 22.6 / 22.5   reject, prediction moved too far
+   try row at distance 0.0088: predicted -14.1 / -9.4   ACCEPT
+   changed    : Qcomp: 0.4 -> 0.8
+   ezr leaf   : SAME leaf, so ezr gives the same path by construction
+   [ezr ] 1.00 ####################  {Crf, No_asm, No_mbtree}=  point only {}  neighbour only {}
+   [lime] 0.20 ####................  {Crf}=  point only {Seek, Threads}  neighbour only {No_asm, No_mbtree}
+   [shap] 0.50 ##########..........  {Crf, Seek}=  point only {Threads}  neighbour only {Qcomp}
+   [rand] 0.00 ....................    point only {Qp, Ref, Scenecut}  neighbour only {No_cabac, Qcomp, Seek}
+   lime twice on the SAME point: 0.20  {Crf}=  point only {No_asm, No_mbtree}  neighbour only {Seek, Threads}
+
+==============================================================================
+4. THIS REPEAT'S SCORE   (mean overlap over the points with a neighbour)
+==============================================================================
+   ezr    1.00 ##############################   from 20 pairs
+   lime   0.52 ###############...............   from 20 pairs
+   shap   0.78 #######################.......   from 20 pairs
+   rand   0.14 ####..........................   from 20 pairs
+   lime on the same point twice: 0.64
+
+rand is what two unrelated sets of 3 reach by chance. the real experiment
+does this 20 times per dataset, keeps one mean per repeat, then hands
+the four lists to tools/stats.top, which marks the most stable with '+'.
