@@ -1,0 +1,416 @@
+Reproduce from the repository root:
+PYTHONHASHSEED=0 python3 experiment3/trace.py -f data/optimize/misc/auto93.csv -s 0 -P 5 -L 1000 -B 50 -T 3 -E 5 -S 0.05 -W 12
+
+==============================================================================
+1. THE DATASET
+==============================================================================
+rows: 398; features: 4; objectives: 3
+features: Clndrs Volume Model origin
+objectives: Lbs- Acc+ Mpg+
+Both models predict distance-to-heaven on full-dataset objective bounds; lower is better.
+
+==============================================================================
+2. THE SPLIT AND BOUGHT LABELS (seed 0, Budget 50)
+==============================================================================
+train: 199; held-out test: 199; labels bought: 50
+EZR's active learner chooses labels from train; both models fit exactly those labels.
+Example labelled rows (first five in the learner's returned order):
+  target=0.167460  Clndrs=4  Volume=97  Model=82  origin=2
+  target=0.190343  Clndrs=4  Volume=90  Model=80  origin=2
+  target=0.195327  Clndrs=4  Volume=90  Model=80  origin=2
+  target=0.193398  Clndrs=4  Volume=90  Model=78  origin=2
+  target=0.242453  Clndrs=4  Volume=85  Model=81  origin=3
+label target range: 0.167460 to 0.830417
+
+==============================================================================
+3. THE FITTED MODELS
+==============================================================================
+EZR tree (raw distance-to-heaven means):
+  root: n=50, prediction=0.432141
+  |  Model > 76: n=38, prediction=0.396584
+  |  |  Volume <= 121: n=29, prediction=0.361023
+  |  |  |  Volume <= 97: n=15, prediction=0.324527
+  |  |  |  |  Volume > 89: n=7, prediction=0.269393
+  |  |  |  |  |  Model <= 80: n=4, prediction=0.241097
+  |  |  |  |  |  Model > 80: n=3, prediction=0.307121
+  |  |  |  |  Volume <= 89: n=8, prediction=0.372768
+  |  |  |  |  |  Volume <= 86: n=5, prediction=0.324258
+  |  |  |  |  |  Volume > 86: n=3, prediction=0.453618
+  |  |  |  Volume > 97: n=14, prediction=0.400127
+  |  |  |  |  Model > 81: n=7, prediction=0.385764
+  |  |  |  |  Model <= 81: n=7, prediction=0.414490
+  |  |  |  |  |  Volume <= 98: n=4, prediction=0.403515
+  |  |  |  |  |  Volume > 98: n=3, prediction=0.429123
+  |  |  Volume > 121: n=9, prediction=0.511170
+  |  |  |  Volume > 140: n=5, prediction=0.491808
+  |  |  |  Volume <= 140: n=4, prediction=0.535373
+  |  Model <= 76: n=12, prediction=0.544736
+  |  |  Volume <= 116: n=8, prediction=0.503384
+  |  |  |  Volume <= 90: n=4, prediction=0.496069
+  |  |  |  Volume > 90: n=4, prediction=0.510698
+  |  |  Volume > 116: n=4, prediction=0.627440
+LightGBM split counts: Volume:482  Model:421  origin:134  Clndrs:13
+
+==============================================================================
+4. EXPLANATIONS AND PERTURBATION SETTINGS
+==============================================================================
+Top=3 (0 keeps all nonzero weights); Step=5% of numeric range
+LIME samples=1000; background=199 unlabelled train feature rows
+EZR weights: child prediction minus parent prediction, summed by feature along the path.
+LIME weights: standardized numeric coefficients / categorical membership coefficients.
+SHAP weights: contributions relative to LightGBM's expected prediction.
+Random: fresh signed uniform weights; each method keeps its largest absolute weights.
+Compare each method with itself; weights from different methods have different meanings.
+One feature changes; integer values stay integer, categories switch to another observed value.
+Close = 200*|p-q|/(|p|+|q|) <= 5% under BOTH predictors.
+Both zero: 0%; one zero: 200%. Larger changes still contribute to the all-pairs score.
+Same-point explanations are drawn again to reveal LIME/random sampling noise.
+
+==============================================================================
+5. TEST POINT 1 AND ITS DIRECT PERTURBATION
+==============================================================================
+before: Clndrs=8  Volume=350  Model=75  origin=1
+after:  Clndrs=8  Volume=350  Model=75  origin=3
+changed only origin: 1 -> 3
+categorical switch; observed categories: [1, 2, 3]
+Objectives stay untouched and are not used to score this artificial point's outcome.
+EZR: 0.627440 -> 0.627440; 200*0.000000/1.254880 = 0.000%
+LightGBM: 0.624536 -> 0.598360; 200*0.026176/1.222896 = 4.281%
+both within 5%: True; included in close and all-pairs scores
+same EZR leaf: True; native rule overlap: 1.000
+EZR path before:
+    Model <= 76: 0.432141 -> 0.544736; delta=+0.112595
+    Volume > 116: 0.544736 -> 0.627440; delta=+0.082704
+    full path sum=+0.195299 = leaf 0.627440 - root 0.432141
+EZR path after:
+    Model <= 76: 0.432141 -> 0.544736; delta=+0.112595
+    Volume > 116: 0.544736 -> 0.627440; delta=+0.082704
+    full path sum=+0.195299 = leaf 0.627440 - root 0.432141
+
+[ezr] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.082704   +0.082704         +0.082704  same sign
+  Model                  +0.112595   +0.112595         +0.112595  same sign
+  mass=0.390599; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[lime] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.027689   +0.027144         +0.027217  same sign
+  Model                  -0.115392   -0.108093         -0.108526  same sign
+  origin                 +0.025627   -0.020578         +0.032671  SIGN FLIPPED
+  mass=0.324523; signed difference=0.054049; magnitude difference=0.012894
+  signed stability: 1 - signed difference/mass = 0.833450
+  weight stability: 1 - magnitude difference/mass = 0.960269
+  feature overlap=1.000000; shared-feature sign agreement=0.666667
+  same-input signed stability=0.957337
+
+[shap] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Clndrs                 +0.000000   -0.006572         +0.000000  added
+  Volume                 +0.101538   +0.100663         +0.101538  same sign
+  Model                  +0.079677   +0.074141         +0.079677  same sign
+  origin                 +0.017753   +0.000000         +0.017753  removed
+  mass=0.380343; signed difference=0.030736; magnitude difference=0.030736
+  signed stability: 1 - signed difference/mass = 0.919188
+  weight stability: 1 - magnitude difference/mass = 0.919188
+  feature overlap=0.500000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[rand] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Clndrs                 +0.000000   +0.626540         +0.000000  added
+  Volume                 -0.460427   +0.825511         +0.870145  SIGN FLIPPED
+  Model                  -0.918053   +0.000000         +0.631707  removed
+  origin                 -0.966945   +0.458993         -0.994523  SIGN FLIPPED
+  mass=4.256469; signed difference=4.256469; magnitude difference=2.417630
+  signed stability: 1 - signed difference/mass = 0.000000
+  weight stability: 1 - magnitude difference/mass = 0.432011
+  feature overlap=0.500000; shared-feature sign agreement=0.000000
+  same-input signed stability=0.399415
+
+==============================================================================
+5. TEST POINT 2 AND ITS DIRECT PERTURBATION
+==============================================================================
+before: Clndrs=4  Volume=140  Model=75  origin=1
+after:  Clndrs=4  Volume=121  Model=75  origin=1
+changed only Volume: 140 -> 121
+bounds [68, 455]; actual change=4.91% of range (after rounding/clipping)
+Objectives stay untouched and are not used to score this artificial point's outcome.
+EZR: 0.627440 -> 0.627440; 200*0.000000/1.254880 = 0.000%
+LightGBM: 0.647899 -> 0.516421; 200*0.131477/1.164320 = 22.584%
+both within 5%: False; included in all-pairs ONLY scores
+same EZR leaf: True; native rule overlap: 1.000
+EZR path before:
+    Model <= 76: 0.432141 -> 0.544736; delta=+0.112595
+    Volume > 116: 0.544736 -> 0.627440; delta=+0.082704
+    full path sum=+0.195299 = leaf 0.627440 - root 0.432141
+EZR path after:
+    Model <= 76: 0.432141 -> 0.544736; delta=+0.112595
+    Volume > 116: 0.544736 -> 0.627440; delta=+0.082704
+    full path sum=+0.195299 = leaf 0.627440 - root 0.432141
+
+[ezr] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.082704   +0.082704         +0.082704  same sign
+  Model                  +0.112595   +0.112595         +0.112595  same sign
+  mass=0.390599; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[lime] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.060869   +0.060718         +0.059037  same sign
+  Model                  -0.104896   -0.109106         -0.109290  same sign
+  origin                 +0.030238   +0.029201         +0.033791  same sign
+  mass=0.395028; signed difference=0.005398; magnitude difference=0.005398
+  signed stability: 1 - signed difference/mass = 0.986335
+  weight stability: 1 - magnitude difference/mass = 0.986335
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=0.975437
+
+[shap] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.117916   -0.003681         +0.117916  SIGN FLIPPED
+  Model                  +0.078817   +0.070974         +0.078817  same sign
+  origin                 +0.018343   +0.016159         +0.018343  same sign
+  mass=0.305890; signed difference=0.131623; magnitude difference=0.124261
+  signed stability: 1 - signed difference/mass = 0.569703
+  weight stability: 1 - magnitude difference/mass = 0.593774
+  feature overlap=1.000000; shared-feature sign agreement=0.666667
+  same-input signed stability=1.000000
+
+[rand] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Clndrs                 +0.714809   +0.726358         -0.943361  same sign
+  Volume                 -0.932829   +0.000000         -0.751433  removed
+  Model                  +0.000000   -0.400576         +0.341249  added
+  origin                 -0.648689   -0.154626         +0.000000  same sign
+  mass=3.577886; signed difference=1.839018; magnitude difference=1.839018
+  signed stability: 1 - signed difference/mass = 0.486004
+  weight stability: 1 - magnitude difference/mass = 0.486004
+  feature overlap=0.500000; shared-feature sign agreement=1.000000
+  same-input signed stability=0.346893
+
+==============================================================================
+5. TEST POINT 3 AND ITS DIRECT PERTURBATION
+==============================================================================
+before: Clndrs=6  Volume=250  Model=75  origin=1
+after:  Clndrs=7  Volume=250  Model=75  origin=1
+changed only Clndrs: 6 -> 7
+bounds [3, 8]; actual change=20.00% of range (after rounding/clipping)
+Objectives stay untouched and are not used to score this artificial point's outcome.
+EZR: 0.627440 -> 0.627440; 200*0.000000/1.254880 = 0.000%
+LightGBM: 0.624536 -> 0.624536; 200*0.000000/1.249073 = 0.000%
+both within 5%: True; included in close and all-pairs scores
+same EZR leaf: True; native rule overlap: 1.000
+EZR path before:
+    Model <= 76: 0.432141 -> 0.544736; delta=+0.112595
+    Volume > 116: 0.544736 -> 0.627440; delta=+0.082704
+    full path sum=+0.195299 = leaf 0.627440 - root 0.432141
+EZR path after:
+    Model <= 76: 0.432141 -> 0.544736; delta=+0.112595
+    Volume > 116: 0.544736 -> 0.627440; delta=+0.082704
+    full path sum=+0.195299 = leaf 0.627440 - root 0.432141
+
+[ezr] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.082704   +0.082704         +0.082704  same sign
+  Model                  +0.112595   +0.112595         +0.112595  same sign
+  mass=0.390599; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[lime] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.040693   +0.039322         +0.040785  same sign
+  Model                  -0.115601   -0.113410         -0.113217  same sign
+  origin                 +0.030621   +0.027113         +0.033160  same sign
+  mass=0.366760; signed difference=0.007069; magnitude difference=0.007069
+  signed stability: 1 - signed difference/mass = 0.980725
+  weight stability: 1 - magnitude difference/mass = 0.980725
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=0.986592
+
+[shap] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.101538   +0.101538         +0.101538  same sign
+  Model                  +0.079677   +0.079677         +0.079677  same sign
+  origin                 +0.017753   +0.017753         +0.017753  same sign
+  mass=0.397935; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[rand] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Clndrs                 +0.000000   +0.371084         -0.729807  added
+  Volume                 -0.232645   +0.300919         +0.442977  SIGN FLIPPED
+  Model                  +0.994420   +0.376893         +0.000000  same sign
+  origin                 +0.961671   +0.000000         -0.379516  removed
+  mass=3.237631; signed difference=2.483845; magnitude difference=2.018555
+  signed stability: 1 - signed difference/mass = 0.232820
+  weight stability: 1 - magnitude difference/mass = 0.376534
+  feature overlap=0.500000; shared-feature sign agreement=0.500000
+  same-input signed stability=0.000000
+
+==============================================================================
+5. TEST POINT 4 AND ITS DIRECT PERTURBATION
+==============================================================================
+before: Clndrs=4  Volume=121  Model=78  origin=2
+after:  Clndrs=5  Volume=121  Model=78  origin=2
+changed only Clndrs: 4 -> 5
+bounds [3, 8]; actual change=20.00% of range (after rounding/clipping)
+Objectives stay untouched and are not used to score this artificial point's outcome.
+EZR: 0.429123 -> 0.429123; 200*0.000000/0.858246 = 0.000%
+LightGBM: 0.445919 -> 0.445919; 200*0.000000/0.891837 = 0.000%
+both within 5%: True; included in close and all-pairs scores
+same EZR leaf: True; native rule overlap: 1.000
+EZR path before:
+    Model > 76: 0.432141 -> 0.396584; delta=-0.035556
+    Volume <= 121: 0.396584 -> 0.361023; delta=-0.035561
+    Volume > 97: 0.361023 -> 0.400127; delta=+0.039104
+    Model <= 81: 0.400127 -> 0.414490; delta=+0.014363
+    Volume > 98: 0.414490 -> 0.429123; delta=+0.014633
+    full path sum=-0.003018 = leaf 0.429123 - root 0.432141
+EZR path after:
+    Model > 76: 0.432141 -> 0.396584; delta=-0.035556
+    Volume <= 121: 0.396584 -> 0.361023; delta=-0.035561
+    Volume > 97: 0.361023 -> 0.400127; delta=+0.039104
+    Model <= 81: 0.400127 -> 0.414490; delta=+0.014363
+    Volume > 98: 0.414490 -> 0.429123; delta=+0.014633
+    full path sum=-0.003018 = leaf 0.429123 - root 0.432141
+
+[ezr] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.018176   +0.018176         +0.018176  same sign
+  Model                  -0.021193   -0.021193         -0.021193  same sign
+  mass=0.078738; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[lime] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.061326   +0.059919         +0.062875  same sign
+  Model                  -0.104801   -0.103641         -0.100076  same sign
+  origin                 -0.022672   -0.023469         -0.018373  same sign
+  mass=0.375827; signed difference=0.003364; magnitude difference=0.003364
+  signed stability: 1 - signed difference/mass = 0.991049
+  weight stability: 1 - magnitude difference/mass = 0.991049
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=0.971431
+
+[shap] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.008708   +0.008708         +0.008708  same sign
+  Model                  +0.009985   +0.009985         +0.009985  same sign
+  origin                 -0.005712   -0.005712         -0.005712  same sign
+  mass=0.048810; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[rand] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.778976   -0.356261         +0.780549  SIGN FLIPPED
+  Model                  +0.868087   +0.188600         -0.545685  same sign
+  origin                 -0.284410   -0.324178         +0.246374  same sign
+  mass=2.800511; signed difference=1.854492; magnitude difference=1.141969
+  signed stability: 1 - signed difference/mass = 0.337802
+  weight stability: 1 - magnitude difference/mass = 0.592228
+  feature overlap=1.000000; shared-feature sign agreement=0.666667
+  same-input signed stability=0.444611
+
+==============================================================================
+5. TEST POINT 5 AND ITS DIRECT PERTURBATION
+==============================================================================
+before: Clndrs=6  Volume=200  Model=81  origin=1
+after:  Clndrs=5  Volume=200  Model=81  origin=1
+changed only Clndrs: 6 -> 5
+bounds [3, 8]; actual change=20.00% of range (after rounding/clipping)
+Objectives stay untouched and are not used to score this artificial point's outcome.
+EZR: 0.491808 -> 0.491808; 200*0.000000/0.983616 = 0.000%
+LightGBM: 0.466679 -> 0.477606; 200*0.010926/0.944285 = 2.314%
+both within 5%: True; included in close and all-pairs scores
+same EZR leaf: True; native rule overlap: 1.000
+EZR path before:
+    Model > 76: 0.432141 -> 0.396584; delta=-0.035556
+    Volume > 121: 0.396584 -> 0.511170; delta=+0.114586
+    Volume > 140: 0.511170 -> 0.491808; delta=-0.019362
+    full path sum=+0.059667 = leaf 0.491808 - root 0.432141
+EZR path after:
+    Model > 76: 0.432141 -> 0.396584; delta=-0.035556
+    Volume > 121: 0.396584 -> 0.511170; delta=+0.114586
+    Volume > 140: 0.511170 -> 0.491808; delta=-0.019362
+    full path sum=+0.059667 = leaf 0.491808 - root 0.432141
+
+[ezr] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.095224   +0.095224         +0.095224  same sign
+  Model                  -0.035556   -0.035556         -0.035556  same sign
+  mass=0.261560; signed difference=0.000000; magnitude difference=0.000000
+  signed stability: 1 - signed difference/mass = 1.000000
+  weight stability: 1 - magnitude difference/mass = 1.000000
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[lime] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.057184   +0.051425         +0.052029  same sign
+  Model                  -0.091109   -0.098546         -0.093000  same sign
+  origin                 +0.014324   +0.027962         +0.022518  same sign
+  mass=0.340550; signed difference=0.026833; magnitude difference=0.026833
+  signed stability: 1 - signed difference/mass = 0.921207
+  weight stability: 1 - magnitude difference/mass = 0.921207
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=0.953841
+
+[shap] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Volume                 +0.089805   +0.090642         +0.089805  same sign
+  Model                  -0.064448   -0.062538         -0.064448  same sign
+  origin                 +0.016496   +0.016559         +0.016496  same sign
+  mass=0.340487; signed difference=0.002809; magnitude difference=0.002809
+  signed stability: 1 - signed difference/mass = 0.991749
+  weight stability: 1 - magnitude difference/mass = 0.991749
+  feature overlap=1.000000; shared-feature sign agreement=1.000000
+  same-input signed stability=1.000000
+
+[rand] weights after top-feature selection (absent features have weight 0)
+  feature                   before       after  same input again  sign / membership
+  Clndrs                 -0.831969   +0.752968         +0.000000  SIGN FLIPPED
+  Volume                 +0.665288   -0.882864         +0.592649  SIGN FLIPPED
+  Model                  +0.574197   +0.000000         -0.538716  removed
+  origin                 +0.000000   -0.699441         -0.895957  added
+  mass=4.406728; signed difference=4.406728; magnitude difference=1.570214
+  signed stability: 1 - signed difference/mass = 0.000000
+  weight stability: 1 - magnitude difference/mass = 0.643678
+  feature overlap=0.500000; shared-feature sign agreement=0.000000
+  same-input signed stability=0.289183
+
+==============================================================================
+6. THIS REPEAT'S REPORT
+==============================================================================
+Rows below are means over this repeat's measured pairs; NaN means no eligible measurement.
+Primary scores use close pairs; all uses every pair; cross uses close pairs in different EZR leaves.
+A one-repeat trace does not identify statistically best methods.
+auto93                           1.000    0.932    0.978    0.143
+  features                        1.000    1.000    0.875    0.625
+  signs                           1.000    0.917    1.000    0.292
+  weights                         1.000    0.963    0.978    0.511
+  all                             1.000    0.943    0.896    0.211
+  self                            1.000    0.969    1.000    0.296
+  cross                             nan      nan      nan      nan
+  pairs=5.00  changed_pct=100.00  close_pct=80.00  close_pairs=4.00  close_repeats=1.00  ezr_pred_pct=0.00  lgbm_pred_pct=5.84  ezr_close_pct=100.00  lgbm_close_pct=80.00  numeric_step_pct=16.23  categorical_pct=20.00  same_leaf_pct=100.00  rules=1.00  empty_ezr_pct=0.00  empty_lime_pct=0.00  empty_shap_pct=0.00  empty_rand_pct=0.00
+The full experiment repeats this over 20 splits by default, then compares repeat means.
