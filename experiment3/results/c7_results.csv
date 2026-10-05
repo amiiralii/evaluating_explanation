@@ -1,0 +1,129 @@
+dataset,ezr,lime,shap,best
+7z,1.000,0.889,0.981,ezr
+A2C_Acrobot,1.000,0.816,0.974,ezr
+A2C_CartPole,1.000,0.920,0.973,ezr
+Apache_AllMeasurements,1.000,0.913,0.945,ezr
+BDBC,1.000,0.964,0.991,ezr
+BankChurners,1.000,0.815,0.976,ezr
+Car_price_cleaned,1.000,0.880,0.995,ezr shap
+Data_COVID19_Indonesia,1.000,0.826,0.989,ezr shap
+FFM-1000-200-0.50-SAT-1,0.953,0.959,0.911,lime
+FFM-125-25-0.50-SAT-1,1.000,0.978,0.979,ezr shap
+FFM-250-50-0.50-SAT-1,0.960,0.955,0.927,ezr lime
+FFM-500-100-0.50-SAT-1,0.987,0.934,0.912,ezr
+FM-500-100-0.25-SAT-1,0.979,0.910,0.884,ezr
+FM-500-100-0.50-SAT-1,1.000,0.960,0.939,ezr
+FM-500-100-0.75-SAT-1,0.995,0.947,0.933,ezr
+FM-500-100-1.00-SAT-1,0.973,0.960,0.933,ezr
+HSMGP_num,1.000,0.977,0.994,ezr shap
+HSQLDB,1.000,0.970,0.997,ezr shap
+Health-ClosedIssues0000,1.000,0.914,0.981,ezr
+Health-ClosedIssues0001,1.000,0.930,0.978,ezr
+Health-ClosedIssues0002,1.000,0.942,0.999,ezr shap
+Health-ClosedIssues0003,1.000,0.834,0.931,ezr
+Health-ClosedIssues0004,1.000,0.898,0.926,ezr
+Health-ClosedIssues0005,1.000,0.920,0.991,ezr
+Health-ClosedIssues0006,1.000,0.920,0.973,ezr
+Health-ClosedIssues0007,1.000,0.920,0.946,ezr
+Health-ClosedIssues0008,1.000,0.889,0.957,ezr
+Health-ClosedIssues0009,0.996,0.819,0.907,ezr
+Health-ClosedIssues0010,0.993,0.875,0.919,ezr
+Health-ClosedIssues0011,1.000,0.931,0.990,ezr shap
+Health-ClosedPRs0000,1.000,0.943,1.000,ezr shap
+Health-ClosedPRs0002,1.000,0.944,1.000,shap
+Health-ClosedPRs0003,1.000,0.942,0.999,ezr shap
+Health-ClosedPRs0004,1.000,0.925,0.981,ezr
+Health-ClosedPRs0005,1.000,0.935,0.997,shap
+Health-ClosedPRs0006,1.000,0.842,0.924,ezr
+Health-ClosedPRs0007,0.998,0.868,0.938,ezr
+Health-ClosedPRs0008,1.000,0.813,0.876,ezr
+Health-ClosedPRs0009,1.000,0.920,0.965,ezr
+Health-ClosedPRs0010,1.000,0.893,0.926,ezr
+Health-ClosedPRs0011,1.000,0.943,1.000,ezr shap
+Health-Commits0000,1.000,0.919,0.988,ezr
+Health-Commits0001,1.000,0.941,0.998,ezr shap
+Health-Commits0002,1.000,0.943,0.999,ezr shap
+Health-Commits0003,1.000,0.899,0.970,ezr
+Health-Commits0004,1.000,0.923,0.966,ezr
+Health-Commits0005,1.000,0.904,0.967,ezr
+Health-Commits0006,1.000,0.945,0.993,ezr shap
+Health-Commits0007,1.000,0.825,0.946,ezr
+Health-Commits0008,1.000,0.857,0.927,ezr
+Health-Commits0009,1.000,0.934,0.974,ezr
+Health-Commits0010,1.000,0.925,0.981,ezr
+Health-Commits0011,1.000,0.926,0.985,ezr
+LLVM,1.000,0.981,0.981,ezr
+Life_Expectancy_Data,1.000,0.895,0.996,ezr shap
+Loan,1.000,0.940,0.991,ezr shap
+Marketing_Analytics,1.000,0.908,0.989,ezr
+Medical_Data_and_Hospital_Readmissions,1.000,0.798,0.997,ezr shap
+PostgreSQL,1.000,0.934,0.988,ezr
+SQL_AllMeasurements,1.000,0.958,0.965,ezr
+SS-A,1.000,0.950,0.987,ezr
+SS-B,1.000,0.978,0.974,ezr
+SS-C,1.000,0.954,0.989,ezr
+SS-D,0.999,0.949,0.963,ezr
+SS-E,1.000,0.955,0.976,ezr
+SS-F,1.000,0.950,0.952,ezr
+SS-G,1.000,0.948,0.966,ezr
+SS-H,1.000,0.954,0.959,ezr
+SS-I,1.000,0.941,0.965,ezr
+SS-J,1.000,0.955,0.985,ezr
+SS-K,1.000,0.895,0.976,ezr
+SS-L,1.000,0.886,0.930,ezr
+SS-M,1.000,0.974,0.997,ezr shap
+SS-N,1.000,0.915,0.981,ezr
+SS-O,1.000,0.907,0.936,ezr
+SS-P,0.992,0.905,0.921,ezr
+SS-Q,1.000,0.971,0.991,ezr shap
+SS-R,1.000,0.913,0.958,ezr
+SS-S,1.000,0.947,0.996,ezr shap
+SS-T,1.000,0.906,0.967,ezr
+SS-U,1.000,0.977,0.970,lime shap
+SS-V,1.000,0.984,0.988,ezr lime shap
+SS-W,1.000,0.960,0.931,ezr
+SS-X,1.000,0.990,0.999,ezr lime shap
+Scrum100k,0.995,0.934,0.896,ezr
+Scrum10k,0.936,0.895,0.927,ezr shap
+Scrum1k,0.976,0.922,0.897,ezr
+WA_Fn-UseC_-HR-Employee-Attrition,1.000,0.885,0.988,ezr
+WA_Fn-UseC_-Telco-Customer-Churn,1.000,0.844,0.991,ezr shap
+Wine_quality,1.000,0.884,0.959,ezr
+X264_AllMeasurements,1.000,0.970,0.991,ezr shap
+accessories,0.903,0.835,0.911,ezr shap
+all_players,1.000,0.926,0.999,ezr shap
+auto93,1.000,0.934,0.962,ezr
+billing10k,0.937,0.973,0.933,lime
+coc1000,1.000,0.878,0.966,ezr
+dataset120,1.000,0.906,0.987,ezr
+dataset600,1.000,0.911,0.972,ezr
+dconvert,1.000,0.981,0.990,ezr
+deeparch,1.000,0.988,0.976,ezr
+dress-up,0.950,0.844,0.922,ezr
+exastencils,1.000,0.863,0.990,ezr
+home_data_for_ml_course,1.000,0.711,0.992,ezr
+javagc,1.000,0.891,0.999,ezr shap
+multiLabel,1.000,0.931,0.999,ezr shap
+nasa93dem,0.950,0.813,0.885,ezr
+player_statistics_cleaned_final,1.000,0.952,0.996,ezr shap
+pom3a,1.000,0.914,0.990,ezr
+pom3b,1.000,0.884,0.983,ezr
+pom3c,1.000,0.890,0.985,ezr
+pom3d,1.000,0.875,0.983,ezr
+redis,1.000,0.841,0.973,ezr
+rs-6d-c3_obj1,1.000,0.958,0.998,ezr shap
+rs-6d-c3_obj2,1.000,0.908,1.000,ezr shap
+socks,1.000,0.930,0.978,ezr
+sol-6d-c2-obj1,1.000,0.939,0.999,ezr shap
+storm,1.000,0.958,1.000,ezr shap
+student_dropout,1.000,0.765,1.000,ezr shap
+wallpaper,1.000,0.817,0.981,ezr
+wc+rs-3d-c4-obj1,1.000,0.956,0.992,ezr
+wc+sol-3d-c4-obj1,1.000,0.958,0.988,ezr
+wc+wc-3d-c4-obj1,1.000,0.954,0.994,ezr
+wc-6d-c1-obj1,1.000,0.943,0.995,ezr shap
+x264,1.000,0.909,0.985,ezr
+xomo_flight,1.000,0.957,0.998,ezr shap
+xomo_ground,1.000,0.956,0.997,ezr shap
+xomo_osp,1.000,0.955,0.999,ezr shap
+xomo_osp2,1.000,0.953,0.997,ezr shap

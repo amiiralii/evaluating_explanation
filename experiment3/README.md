@@ -31,7 +31,9 @@ Requires the existing environment's `numpy`, `lightgbm`, `shap`, `lime`, and
 `sympy` (imported by `tools/ezr.py`). Set `PYTHON=/path/to/python` for the runners
 to use another environment. Runner paths work from any working directory.
 
-The full sweep is prepared but **has not been run**:
+The full sweep completed on all **128 datasets** on October 5, 2026.
+Results are in `results/c7_results.csv`; `results/RESULTS.md` records the run
+settings, summary and interpretation limits. To rerun:
 
 ```sh
 sh experiment3/sweep.sh 10 data/optimize
@@ -185,4 +187,6 @@ zero predictions, missing/constant features, integer bounds, preservation of
 objectives, path contribution sums, and feature mapping when an objective occurs
 between feature columns. Smoke runs cover continuous/missing (`auto93`),
 categorical (`Apache_AllMeasurements`) and wide (`FFM-1000-200-0.50-SAT-1`) data.
-They are execution checks, not experimental findings. Full results are pending.
+They are execution checks, not experimental findings. The full sweep completed
+with 128 unique dataset rows, no missing scores and an empty error log. The
+`auto93` row matches the earlier single-dataset run.
