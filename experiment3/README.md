@@ -37,11 +37,13 @@ The full sweep is prepared but **has not been run**:
 sh experiment3/sweep.sh 10 data/optimize
 ```
 
-It writes `experiment3/results/c7_results.csv` (primary scores and best methods),
-`c7_results_full.csv` (all metrics and diagnostics), and `sweep.err`. Like the
+It writes `experiment3/results/c7_results.csv` with only
+`dataset,ezr,lime,shap,best`, and `sweep.err`. Like the
 existing runners, this overwrites that experiment's previous reports. It pins
 `PYTHONHASHSEED=0`, sorts dataset output, and fails if a dataset is missing.
 The experiment supports `-c 1` for one CSV row and `--header` for its header.
+Console output uses the same five columns. `best` compares EZR, LIME and SHAP.
+Random and the diagnostics below are still computed and shown in the trace.
 
 ## Protocol
 
@@ -115,7 +117,10 @@ Let `a` and `b` be a method's signed feature-weight dictionaries before and afte
 the perturbation. Use the union of their features; an absent feature has weight
 zero. Let `mass = sum(abs(a[j]) + abs(b[j]))`.
 
-| Column | Measurement, 0 to 1 (higher is more stable) |
+Only `dataset`, `ezr`, `lime`, `shap` and `best` appear in the standard report.
+The remaining metrics are available in the detailed trace summary.
+
+| Score / trace metric | Measurement, 0 to 1 (higher is more stable) |
 |---|---|
 | `ezr/lime/shap/rand` | Signed stability: `1 - sum(abs(a[j]-b[j])) / mass` on close pairs |
 | `features_*` | Jaccard overlap of nonzero feature identities on close pairs |
@@ -137,8 +142,8 @@ are empty for each method, so a constant model's apparent stability is visible.
 
 Each repeat is reduced to a mean per metric; the report shows the median of
 those repeat means. Missing measurements stay NaN and never become zero.
-`tools/stats.top()` marks statistically best primary scores with `+` (or lists
-names in CSV). At least two contributing repeats per method are required before
+`tools/stats.top()` lists statistically best primary methods in `best`.
+At least two contributing repeats per method are required before
 calling it; a one-repeat smoke run receives no best-method designation.
 Coverage diagnostics are pooled counts/means, not inputs to the statistical test.
 

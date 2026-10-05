@@ -131,7 +131,7 @@ def walk(file):
   print("Rows below are means over this repeat's measured pairs; NaN means no eligible measurement.")
   print("Primary scores use close pairs; all uses every pair; cross uses close pairs in different EZR leaves.")
   print("A one-repeat trace does not identify statistically best methods.")
-  report(file,out,diag)
+  report(file,out,diag,details=True)
   print("The full experiment repeats this over 20 splits by default, then compares repeat means.")
 
 if __name__ == "__main__":

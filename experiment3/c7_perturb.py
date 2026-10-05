@@ -3,8 +3,8 @@
 c7_perturb.py: local explanation stability under one-feature perturbations.
 
 Compare ezr paths, LIME/SHAP over LightGBM, and a fresh random explanation.
-All learners use the same bought labels. Report signed-weight stability both
-for all pairs and for pairs within Eps percent under BOTH predictors.
+All learners use the same bought labels. Report signed-weight stability for
+pairs within Eps percent under BOTH predictors; diagnostics remain in the trace.
 
 Options:
 
@@ -35,12 +35,13 @@ warnings.filterwarnings("ignore", message="X does not have valid feature names")
 
 the.__dict__.update({k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)", __doc__)})
 XAI = ["ezr", "lime", "shap", "rand"]
+REPORT = ["ezr", "lime", "shap"]
 METRICS = ["stable", "features", "signs", "weights", "all", "self", "cross"]
 DIAG = ["pairs", "changed_pct", "close_pct", "close_pairs", "close_repeats",
         "ezr_pred_pct", "lgbm_pred_pct", "ezr_close_pct", "lgbm_close_pct",
         "numeric_step_pct", "categorical_pct", "same_leaf_pct", "rules",
         *[f"empty_{k}_pct" for k in XAI]]
-HEADER = ["dataset"] + XAI + ["best"] + [f"{m}_{k}" for m in METRICS[1:] for k in XAI] + DIAG
+HEADER = ["dataset"] + REPORT + ["best"]
 
 # ## Data and models ---------------------------------------------------
 def codes(data):
@@ -220,21 +221,24 @@ def run(file, show=None, setup=None, seeds=None):
   return out, diag
 
 # ## Reporting ---------------------------------------------------------
-def report(file, out, diag):
-  "One dataset: medians of repeat means, plus pooled coverage diagnostics."
-  best = top(out["stable"],reverse=True) if all(len(v)>1 for v in out["stable"].values()) else set()
+def report(file, out, diag, details=False):
+  "Five-column summary; optionally display all methods and diagnostics for tracing."
+  methods = XAI if details else REPORT
+  scores = {k:out["stable"][k] for k in methods}
+  best = top(scores,reverse=True) if all(len(v)>1 for v in scores.values()) else set()
   med = lambda m,k: median(out[m][k]) if out[m][k] else float("nan")
   name = Path(file).stem
-  values = [f"{med('stable',k):.3f}" for k in XAI]
-  rest = [f"{med(m,k):.3f}" for m in METRICS[1:] for k in XAI]
-  rest += [f"{diag[k]:.3f}" for k in DIAG]
+  values = [f"{med('stable',k):.3f}" for k in methods]
+  winners = " ".join(k for k in methods if k in best)
   if the.csv:
-    print(",".join([name]+values+[" ".join(k for k in XAI if k in best)]+rest),flush=True)
+    print(",".join([name]+[f"{med('stable',k):.3f}" for k in REPORT]
+                   +[" ".join(k for k in REPORT if k in best)]),flush=True)
   else:
-    print(f"{name:30}"+"".join(f"{v:>8}{'+' if k in best else ' '}" for k,v in zip(XAI,values)),flush=True)
-    for m in METRICS[1:]:
-      print(f"  {m:28}"+"".join(f"{med(m,k):9.3f}" for k in XAI))
-    print("  "+"  ".join(f"{k}={diag[k]:.2f}" for k in DIAG),flush=True)
+    print(f"{name:30}"+"".join(f"{v:>9}" for v in values)+f"  {winners}",flush=True)
+    if details:
+      for m in METRICS[1:]:
+        print(f"  {m:28}"+"".join(f"{med(m,k):9.3f}" for k in methods))
+      print("  "+"  ".join(f"{k}={diag[k]:.2f}" for k in DIAG),flush=True)
 
 
 def csvs(path):
@@ -255,7 +259,7 @@ def c7main():
   if not (0<the.Step<=1 and the.Eps>=0 and the.Top>=0 and the.Repeats>0
           and the.Points>0 and the.Budget>=the.Any):
     raise ValueError("Invalid step, tolerance, top, repeats, points or budget")
-  if not the.csv: print(f"{'Data / metric':30}"+"".join(f"{k:>9}" for k in XAI))
+  if not the.csv: print(f"{'dataset':30}"+"".join(f"{k:>9}" for k in REPORT)+"  best")
   for f in csvs(the.file): report(f,*run(f))
 
 if __name__ == "__main__": c7main()
