@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-c1_trace.py: a step-by-step walkthrough of the "Global / C1, C4" experiment, for
-one dataset and one repeat. Calls the same functions as c1_global_topk.py,
+experiment1_trace.py: a step-by-step walkthrough of the "Global / C1, C4" experiment, for
+one dataset and one repeat. Calls the same functions as experiment1_global_topk.py,
 printing every step: how K is fixed, the labels ezr bought, the two full models,
 each method's global feature ranking as a bar chart, which K features each method
 keeps, the rows each retrained model picks from the test half, and the score.
@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent)]   # own dir, then the repo root
 from tools.ezr import (Data, Sym, csv, clone, adds, disty, likely, Tree, treeShow,
                        coerce, main, the)
-from c1_global_topk import (XAI, LRN, codes, encode, Ezr, Lgbm, used, csvs,
+from experiment1_global_topk import (XAI, LRN, codes, encode, Ezr, Lgbm, used, csvs,
                             xEzr, xLime, xShap, xRand, topk)
 from lime.lime_tabular import LimeTabularExplainer
 from statistics import median
@@ -155,8 +155,8 @@ def walk(file):
   print("repeat and learner, then hands each learner's four lists to tools/stats.top,")
   print("which marks the winners with '+'.")
 
-def c1trace():
+def experiment1trace():
   "top-level call"
   main(the, globals()); walk(csvs(the.file)[0])
 
-if __name__ == "__main__": c1trace()
+if __name__ == "__main__": experiment1trace()

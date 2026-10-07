@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-c2_trace.py: a step-by-step walkthrough of the "Local / C2" experiment, for one
-dataset and one repeat. Calls the same functions as c2_local_counterfactual.py,
+experiment2_trace.py: a step-by-step walkthrough of the "Local / C2" experiment, for one
+dataset and one repeat. Calls the same functions as experiment2_local_counterfactual.py,
 printing every step: the labels ezr bought, the tree it grew, what each xai
 method says about a point, the one feature it changes, and how the model scores
 the changed row.
@@ -21,7 +21,7 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent)]   # own dir, then the repo root
 from tools.ezr import (Data, csv, clone, adds, disty, likely, treeShow, treeLeaf,
                        treeSelects, trace as treeTrace, coerce, main, the)
-from c2_local_counterfactual import (XAI, codes, encode, Ezr, Lgbm, Aux, Truth,
+from experiment2_local_counterfactual import (XAI, codes, encode, Ezr, Lgbm, Aux, Truth,
                                      real, leaves, xEzr, xLime, xShap, xRand, suggest)
 import numpy as np
 
@@ -182,8 +182,8 @@ def walk(file):
   print(f"\nthe real experiment does this {the.Repeats} times per dataset, keeps one mean per")
   print("repeat, then hands the four lists to tools/stats.top, which marks the winners with '+'.")
 
-def c2trace():
+def experiment2trace():
   "top-level call"
   main(the, globals()); walk(the.file)
 
-if __name__ == "__main__": c2trace()
+if __name__ == "__main__": experiment2trace()

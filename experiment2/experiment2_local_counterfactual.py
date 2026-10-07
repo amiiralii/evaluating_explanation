@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-c2_local_counterfactual.py: README experiment "Local / C2".
+experiment2_local_counterfactual.py: README experiment "Local / C2".
 
 Build a model, explain it, then pick some random points. From each point's
 explanation, change ONE feature to make an artificial suggestion. Score that
@@ -234,7 +234,7 @@ def csvs(path) -> list[str]:
   return [str(p)] if str(p).endswith(".csv") else sorted(
           str(q) for q in p.rglob("*.csv"))
 
-def c2main():
+def experiment2main():
   "top-level call"
   main(the, globals())
   if not the.csv:
@@ -246,4 +246,4 @@ def c2main():
     print(f"\n{'#best of ' + str(len(csvs(the.file))):30}"
           + "".join(f"{wins[k]:9}" for k in XAI))
 
-if __name__ == "__main__": c2main()
+if __name__ == "__main__": experiment2main()

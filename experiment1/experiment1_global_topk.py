@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-c1_global_topk.py: README experiment "Global / C1, C4".
+experiment1_global_topk.py: README experiment "Global / C1, C4".
 
 Explain a model globally, keep only the K features the explanation ranks
 highest, retrain on just those, and ask whether the smaller model still finds
@@ -206,7 +206,7 @@ def csvs(path) -> list[str]:
   return [str(p)] if str(p).endswith(".csv") else sorted(
           str(q) for q in p.rglob("*.csv"))
 
-def c1main():
+def experiment1main():
   "top-level call"
   main(the, globals())
   if not the.csv:
@@ -220,4 +220,4 @@ def c1main():
     print(f"\n{'#best of ' + str(len(csvs(the.file))):40}"
           + "".join(f"{'':10}" + "".join(f"{wins[l,x]:7} " for x in XAI) for l in LRN))
 
-if __name__ == "__main__": c1main()
+if __name__ == "__main__": experiment1main()

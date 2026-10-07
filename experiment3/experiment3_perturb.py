@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-c7_perturb.py: local explanation stability under one-feature perturbations.
+experiment3_perturb.py: local explanation stability under one-feature perturbations.
 
 Compare ezr paths, LIME/SHAP over LightGBM, and a fresh random explanation.
 All learners use the same bought labels. Report signed-weight stability for
@@ -253,7 +253,7 @@ def eg__header():
   "Print the runner's csv header without fitting models."
   print(",".join(HEADER)); sys.exit(0)
 
-def c7main():
+def experiment3main():
   "Read options and run only the requested file or folder."
   main(the,globals())
   if not (0<the.Step<=1 and the.Eps>=0 and the.Top>=0 and the.Repeats>0
@@ -262,4 +262,4 @@ def c7main():
   if not the.csv: print(f"{'dataset':30}"+"".join(f"{k:>9}" for k in REPORT)+"  best")
   for f in csvs(the.file): report(f,*run(f))
 
-if __name__ == "__main__": c7main()
+if __name__ == "__main__": experiment3main()

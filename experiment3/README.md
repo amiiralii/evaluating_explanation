@@ -18,7 +18,7 @@ PYTHONHASHSEED=0 python3 experiment3/trace.py -P 3 -L 200
 python3 experiment3/check.py
 ```
 
-A captured walkthrough is in `results/c7_trace_auto93.txt`: one repeat (seed 0),
+A captured walkthrough is in `results/experiment3_trace_auto93.txt`: one repeat (seed 0),
 five test points, and 1,000 LIME samples per explanation. It shows the split,
 examples of the bought labels, fitted models, actual feature changes, both
 predictions, full EZR path contributions, per-feature before/after weights,
@@ -32,14 +32,14 @@ Requires the existing environment's `numpy`, `lightgbm`, `shap`, `lime`, and
 to use another environment. Runner paths work from any working directory.
 
 The full sweep completed on all **128 datasets** on October 5, 2026.
-Results are in `results/c7_results.csv`; `results/RESULTS.md` records the run
+Results are in `results/experiment3_results.csv`; `results/RESULTS.md` records the run
 settings, summary and interpretation limits. To rerun:
 
 ```sh
 sh experiment3/sweep.sh 10 data/optimize
 ```
 
-It writes `experiment3/results/c7_results.csv` with only
+It writes `experiment3/results/experiment3_results.csv` with only
 `dataset,ezr,lime,shap,best`, and `sweep.err`. Like the
 existing runners, this overwrites that experiment's previous reports. It pins
 `PYTHONHASHSEED=0`, sorts dataset output, and fails if a dataset is missing.

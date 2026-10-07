@@ -58,7 +58,7 @@ write must survive all-symbolic files, all-numeric files, missing values, and th
 
 ## Experiment conventions
 
-Established by `c2/c2_local_counterfactual.py` and worth keeping identical so
+Established by `experiment2/experiment2_local_counterfactual.py` and worth keeping identical so
 results are comparable across experiments:
 
 * 20 repeats per dataset. Each repeat seeds both `the.seed` and `random.seed`,
@@ -130,7 +130,7 @@ These cost several full rewrites. Do not relearn them.
   Python randomizes string hashing per process, so ties between equally good cuts
   break differently on every run. On Telco the ezr column moved between 5.4, 3.3
   and 5.4 across three identical runs, and held at 5.3 with the seed pinned.
-  `c2/sweep.sh` exports `PYTHONHASHSEED=0`. Do the same in any new experiment. The
+  `experiment2/sweep.sh` exports `PYTHONHASHSEED=0`. Do the same in any new experiment. The
   proper fix is `sorted(set(...))` in ezr, which nobody has applied yet because it
   changes tie-breaking and so shifts every published symbolic result.
 * some repeats are degenerate. If the 50 bought labels all share one objective
@@ -139,20 +139,23 @@ These cost several full rewrites. Do not relearn them.
 
 ## Layout of an experiment
 
-One directory per README criterion, named for it: `c1/`, `c3/`, `c5/`, and so on.
+One directory per experiment: `experiment1/` (global top-k, C1/C4),
+`experiment2/` (local counterfactual, C2), and `experiment3/` (local stability,
+C7). Experiment numbers and criterion IDs are distinct. Use `experimentN_`
+for experiment-specific filenames; keep C1–C9 as scientific criterion labels.
 Shared machinery lives in `tools/`, never inside an experiment directory, and a
 tool must never import an experiment. If two experiments need the same helper,
 either give the tool its own copy or move the helper to `tools/`.
 
-    c3/
-      c3_<what_it_does>.py      the experiment                        required
-      c3_trace.py               one dataset, one repeat, every step    optional
+    experimentN/
+      experimentN_<what_it_does>.py  the experiment                   required
+      experimentN_trace.py          one dataset, one repeat, every step optional
       sweep.sh                  run every dataset, rewrite the report  required
       results/
-        c3_results.csv          the report: dataset, a column per method, best
-        c3_results_full.csv     the same plus any diagnostic columns
+        experimentN_results.csv       dataset, a column per method, best
+        experimentN_results_full.csv  the same plus any diagnostic columns
         RESULTS.md              the write-up, including what not to trust
-        c3_trace_<dataset>.txt  a captured walkthrough, if there is a trace
+        experimentN_trace_<dataset>.txt  a captured walkthrough, if there is a trace
         oracle_check.txt        output of tools/oracle_check.py, if the
                                 experiment estimates anything it cannot look up
 
@@ -173,7 +176,7 @@ The experiment script owes four things to the rest of the setup.
   HERE.parent / path`), so a relative `-f data/optimize/...` works from any
   working directory, not only from the root.
 
-For `sweep.sh`, copy `c2/sweep.sh` and change four things: `OUT`, the two result
+For `sweep.sh`, copy `experiment2/sweep.sh` and change four things: `OUT`, the two result
 filenames, and the script named inside the `xargs` line. It already handles what
 is easy to forget: it `cd`s to the repo root, exports
 `PYTHONHASHSEED=0`, sorts the interleaved output of the parallel shards so the
@@ -191,11 +194,11 @@ section is not finished.
 
 ## What exists
 
-* `c2/c2_local_counterfactual.py` — README experiment "Local / C2". Explain a random
+* `experiment2/experiment2_local_counterfactual.py` — README experiment "Local / C2". Explain a random
   test point, change ONE feature on that explanation, score the changed row
   against the truth. `-J model` restores the old self-graded score, which measures
   faithfulness (C4) rather than effectiveness (C2).
-* `c2/c2_trace.py` — the same experiment for one dataset and one repeat with every
+* `experiment2/experiment2_trace.py` — the same experiment for one dataset and one repeat with every
   step printed: labels bought, tree grown, each explanation, the feature changed,
   the new row, the score. Use it for talks and for debugging a new experiment.
 * `tools/oracle_check.py` — hides rows and asks each oracle to score them, so the
@@ -203,9 +206,9 @@ section is not finished.
   experiment that estimates something needs it, and it is deliberately standalone:
   it carries its own copy of the encoding helpers rather than importing an
   experiment. Keep it that way.
-* `c2/sweep.sh` — runs the experiment on every dataset and rewrites the report.
-* `c2/results/` — `c2_results.csv` (the final report: dataset, one column per
-  method, and which methods tied for best), `c2_results_full.csv` (the same
+* `experiment2/sweep.sh` — runs the experiment on every dataset and rewrites the report.
+* `experiment2/results/` — `experiment2_results.csv` (the final report: dataset, one column per
+  method, and which methods tied for best), `experiment2_results_full.csv` (the same
   plus exact% and orc-r), `RESULTS.md` (the write-up with its caveats),
   `oracle_check.txt` (oracle validation), and a captured walkthrough.
 
@@ -240,13 +243,13 @@ repo root so the scripts work from anywhere.
 One dataset, human readable:
 
 ```sh
-python3 c2/c2_local_counterfactual.py -f data/optimize/misc/auto93.csv
+python3 experiment2/experiment2_local_counterfactual.py -f data/optimize/misc/auto93.csv
 ```
 
 Every dataset, rewriting the report:
 
 ```sh
-sh c2/sweep.sh              # or: sh c2/sweep.sh 12 data/optimize/config
+sh experiment2/sweep.sh              # or: sh experiment2/sweep.sh 12 data/optimize/config
 ```
 
 There is no parallel flag inside the python, deliberately. The sweep script

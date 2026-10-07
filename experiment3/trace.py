@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-trace.py: walkthrough of one actual C7 repeat, using c7_perturb.run callbacks.
+trace.py: walkthrough of one actual C7 repeat, using experiment3_perturb.run callbacks.
 Print data, bought labels, fitted models, direct changes, explanations and scores.
-Other c7_perturb options (Budget, Lime, Step, Eps, Top) also work here.
+Other experiment3_perturb options (Budget, Lime, Step, Eps, Top) also work here.
 
 Options:
 
@@ -12,7 +12,7 @@ Options:
     -W Wide=12       feature values displayed per row
 """
 import re, shlex
-from c7_perturb import (XAI, run, report, csvs, agreement, percent, overlap,
+from experiment3_perturb import (XAI, run, report, csvs, agreement, percent, overlap,
                        main, the, coerce, Sym, treeLeaf, treeSelects)
 from tools.ezr import treeNodes, disty
 

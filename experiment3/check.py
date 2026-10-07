@@ -3,7 +3,7 @@
 from types import SimpleNamespace as o
 import math, random
 import numpy as np
-from c7_perturb import (Data, agreement, percent, perturb, path, explain, codes,
+from experiment3_perturb import (Data, agreement, percent, perturb, path, explain, codes,
                        encode, the)
 
 

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-c1_tally.py: which method is top on how many datasets, from the C1 sweep.
+experiment1_tally.py: which method is top on how many datasets, from the C1 sweep.
 
-Reads c1/results/c1_results_full.csv (written by c1/sweep.sh) and prints a csv
+Reads experiment1/results/experiment1_results_full.csv (written by experiment1/sweep.sh) and prints a csv
 to stdout: one row per group and learner, with how often each method is among
 the statistically best ("_best", ties included) and how often it is the ONLY
 best ("_sole"). Groups are the subsets below (kind=subset) and every dataset
 family (kind=family). Save it with:
 
-    python3 c1/c1_tally.py > c1/results/c1_tally.csv
+    python3 experiment1/experiment1_tally.py > experiment1/results/experiment1_tally.csv
 
 Subsets:
     all       every dataset
@@ -21,7 +21,7 @@ so ezr_best on learner=ezr is not skill.
 
 Options:
 
-    -f file=c1/results/c1_results_full.csv    the sweep's full report
+    -f file=experiment1/results/experiment1_results_full.csv    the sweep's full report
     -d data=data/optimize                     where the dataset families live
 """
 from collections import Counter
@@ -31,7 +31,7 @@ import re, sys, csv as csvlib
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent)]   # own dir, then the repo root
 from tools.ezr import coerce, main, the
-from c1_global_topk import XAI
+from experiment1_global_topk import XAI
 
 the.__dict__.update({k: coerce(v) for k,v in re.findall(r"(\w+)=(\S+)", __doc__)})
 LRN = dict(e="ezr", l="lgbm")
@@ -59,7 +59,7 @@ def show(kind, name, rows, L):
   print(",".join([kind, name, LRN[L], str(len(rows))]
                  + [str(best[x]) for x in XAI] + [str(sole[x]) for x in XAI]))
 
-def c1tally():
+def experiment1tally():
   "top-level call"
   main(the, globals())
   rows = list(csvlib.DictReader(open(path(the.file))))
@@ -74,4 +74,4 @@ def c1tally():
   for f in sorted(set(fam.get(r["dataset"], "?") for r in rows)):
     for L in LRN: show("family", f, [r for r in rows if fam.get(r["dataset"], "?") == f], L)
 
-if __name__ == "__main__": c1tally()
+if __name__ == "__main__": experiment1tally()

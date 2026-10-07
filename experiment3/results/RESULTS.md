@@ -1,7 +1,7 @@
 # Experiment 3 / C7: direct-perturbation stability
 
 Completed October 5, 2026 on all 128 CSV datasets under `data/optimize/`.
-The five-column report is `c7_results.csv`. Every dataset produced a row;
+The five-column report is `experiment3_results.csv`. Every dataset produced a row;
 all scores are finite and between 0 and 1. `sweep.err` is empty. The `auto93`
 row matches the previously saved single-dataset result.
 

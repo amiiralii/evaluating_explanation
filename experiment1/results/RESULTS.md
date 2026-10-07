@@ -1,10 +1,10 @@
-# Global / C1, C4: do an explainer's top K features carry the signal?
+# Experiment 1 / Global / C1, C4: do an explainer's top K features carry the signal?
 
-`sh c1/sweep.sh 12` over 128 MOOT datasets, 20 repeats, Budget 50 labels,
+`sh experiment1/sweep.sh 12` over 128 MOOT datasets, 20 repeats, Budget 50 labels,
 Check 5, LIME averaged over 20 train rows, `PYTHONHASHSEED=0`. About 56 minutes
-wall clock. Final report in `c1_results.csv`, the same plus K, n and the full
-models' scores in `c1_results_full.csv`, worked examples of one repeat in
-`c1_trace_X264.txt` (informative) and `c1_trace_auto93.txt` (flat).
+wall clock. Final report in `experiment1_results.csv`, the same plus K, n and the full
+models' scores in `experiment1_results_full.csv`, worked examples of one repeat in
+`experiment1_trace_X264.txt` (informative) and `experiment1_trace_auto93.txt` (flat).
 
 ## What is measured
 
@@ -44,12 +44,12 @@ methods `tools/stats.top` could not separate from the best.
 \* the ezr-on-ezr cell is 0 by construction; see below.
 
 The "separated" rows use the 57 datasets where random is not among the best on
-LightGBM, for both learners. `c1_tally.csv` has the same counts per learner,
+LightGBM, for both learners. `experiment1_tally.csv` has the same counts per learner,
 with the subset defined per learner instead (52 datasets for the ezr learner),
 and per dataset family: for each method, how often it is among the best
 (`_best`) and how often it is the only best (`_sole`). `ezr_best` on
 `learner=ezr` counts the constant-0 cell, not skill. Regenerate it with
-`python3 c1/c1_tally.py > c1/results/c1_tally.csv`.
+`python3 experiment1/experiment1_tally.py > experiment1/results/experiment1_tally.csv`.
 
 **Headline.** LIME and SHAP pick the most representative features, and they are
 nearly indistinguishable from each other. On the 57 datasets where the random

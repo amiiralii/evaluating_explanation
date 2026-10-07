@@ -2,13 +2,13 @@
 # Full sweep, only when explicitly invoked: sh experiment3/sweep.sh [jobs] [data-dir]
 cd "$(dirname "$0")/.." || exit 1
 export PYTHONHASHSEED=0
-export MPLCONFIGDIR=${MPLCONFIGDIR:-${TMPDIR:-/tmp}/c7-matplotlib}
+export MPLCONFIGDIR=${MPLCONFIGDIR:-${TMPDIR:-/tmp}/experiment3-matplotlib}
 PYTHON=${PYTHON:-python3}
 export PYTHON
 JOBS=${1:-10}
 DATA=${2:-data/optimize}
 OUT=experiment3/results
-REPORT=$OUT/c7_results.csv
+REPORT=$OUT/experiment3_results.csv
 mkdir -p "$OUT" || exit 1
 LIST=$(mktemp) || exit 1
 trap 'rm -f "$LIST"' EXIT HUP INT TERM
@@ -17,9 +17,9 @@ N=$(wc -l < "$LIST" | tr -d ' ')
 [ "$N" -gt 0 ] || { echo "No datasets at $DATA" >&2; exit 1; }
 echo "running $N datasets, $JOBS at a time"
 : > "$OUT/sweep.err"
-"$PYTHON" experiment3/c7_perturb.py --header > "$REPORT" || exit 1
+"$PYTHON" experiment3/experiment3_perturb.py --header > "$REPORT" || exit 1
 cat "$LIST" | xargs -P "$JOBS" -n 1 sh -c \
-  '"$PYTHON" experiment3/c7_perturb.py -c 1 -f "$1" 2>>experiment3/results/sweep.err' _ \
+  '"$PYTHON" experiment3/experiment3_perturb.py -c 1 -f "$1" 2>>experiment3/results/sweep.err' _ \
   | sort >> "$REPORT"
 GOT=$(( $(wc -l < "$REPORT") - 1 ))
 echo "$GOT of $N datasets -> $REPORT"
